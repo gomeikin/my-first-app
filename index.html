@@ -3,163 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SPACE INVADERS EX - Arcade Deluxe</title>
+    <title>SPACE INVADERS EX - Neon Cyber Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Orbitron & Press Start 2P -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff007f;
+            --neon-green: #39ff14;
+            --neon-yellow: #ffe600;
+            --neon-purple: #b026ff;
+            --bg-dark: #03030c;
+        }
+
         body {
-            font-family: 'Press Start 2P', monospace;
-            background-color: #030308;
-            color: #00ff66;
+            font-family: 'Orbitron', 'Press Start 2P', monospace;
+            background-color: var(--bg-dark);
+            color: var(--neon-cyan);
             overflow: hidden;
             touch-action: manipulation;
             user-select: none;
+            background-image: 
+                radial-gradient(circle at 50% 20%, rgba(176, 38, 255, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 20% 70%, rgba(255, 0, 127, 0.1) 0%, transparent 50%);
         }
 
-        .pixel-border {
-            border: 4px solid #00ff66;
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4), inset 0 0 15px rgba(0, 255, 102, 0.2);
+        /* Neon Glow Text Styles */
+        .neon-glow-cyan {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan), 0 0 15px var(--neon-cyan), 0 0 30px rgba(0, 243, 255, 0.6);
         }
 
-        .arcade-btn {
-            background: linear-gradient(180deg, #111 0%, #222 100%);
-            border: 2px solid #00ff66;
-            color: #00ff66;
-            box-shadow: 0 4px 0 #00aa44;
-            transition: all 0.1s ease;
+        .neon-glow-pink {
+            color: var(--neon-pink);
+            text-shadow: 0 0 5px var(--neon-pink), 0 0 15px var(--neon-pink), 0 0 30px rgba(255, 0, 127, 0.6);
         }
 
-        .arcade-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #00aa44;
+        .neon-glow-yellow {
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px var(--neon-yellow), 0 0 15px var(--neon-yellow), 0 0 30px rgba(255, 230, 0, 0.6);
         }
 
-        .arcade-btn-red {
-            border-color: #ff0055;
-            color: #ff0055;
-            box-shadow: 0 4px 0 #aa0033;
+        .neon-glow-green {
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green), 0 0 15px var(--neon-green), 0 0 30px rgba(57, 255, 20, 0.6);
         }
 
-        .arcade-btn-yellow {
-            border-color: #ffcc00;
-            color: #ffcc00;
-            box-shadow: 0 4px 0 #aa8800;
+        /* Neon Borders & Panels */
+        .neon-border-cyan {
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5), inset 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .neon-panel {
+            background: rgba(8, 8, 24, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
+        }
+
+        /* Neon Buttons */
+        .neon-btn {
+            background: rgba(5, 5, 20, 0.8);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.4), inset 0 0 10px rgba(0, 243, 255, 0.15);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-btn:hover, .neon-btn:focus {
+            background: var(--neon-cyan);
+            color: #03030c;
+            text-shadow: none;
+            box-shadow: 0 0 25px var(--neon-cyan), 0 0 40px rgba(0, 243, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .neon-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .neon-btn-pink {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            text-shadow: 0 0 8px var(--neon-pink);
+            box-shadow: 0 0 12px rgba(255, 0, 127, 0.4), inset 0 0 10px rgba(255, 0, 127, 0.15);
+        }
+
+        .neon-btn-pink:hover, .neon-btn-pink:focus {
+            background: var(--neon-pink);
+            color: #03030c;
+            text-shadow: none;
+            box-shadow: 0 0 25px var(--neon-pink), 0 0 40px rgba(255, 0, 127, 0.6);
+        }
+
+        .neon-btn-yellow {
+            border-color: var(--neon-yellow);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 8px var(--neon-yellow);
+            box-shadow: 0 0 12px rgba(255, 230, 0, 0.4), inset 0 0 10px rgba(255, 230, 0, 0.15);
+        }
+
+        .neon-btn-yellow:hover, .neon-btn-yellow:focus {
+            background: var(--neon-yellow);
+            color: #03030c;
+            text-shadow: none;
+            box-shadow: 0 0 25px var(--neon-yellow), 0 0 40px rgba(255, 230, 0, 0.6);
         }
 
         canvas {
             image-rendering: pixelated;
-            background-color: #050510;
+            background-color: #04020a;
         }
 
         .crt-overlay {
             background: linear-gradient(
-                rgba(18, 16, 16, 0) 50%, 
-                rgba(0, 0, 0, 0.25) 50%
+                rgba(18, 16, 26, 0) 50%, 
+                rgba(0, 243, 255, 0.04) 50%
             );
             background-size: 100% 4px;
             pointer-events: none;
         }
 
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 10px var(--neon-pink)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 25px var(--neon-pink)) drop-shadow(0 0 40px var(--neon-cyan)); }
+        }
+
+        .pulse-title {
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
         @keyframes shake {
             0% { transform: translate(0, 0); }
-            20% { transform: translate(-4px, 4px); }
-            40% { transform: translate(4px, -4px); }
-            60% { transform: translate(-4px, -4px); }
-            80% { transform: translate(4px, 4px); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(5px, -5px); }
+            60% { transform: translate(-5px, -5px); }
+            80% { transform: translate(5px, 5px); }
             100% { transform: translate(0, 0); }
         }
 
         .shaking {
             animation: shake 0.2s ease-in-out;
         }
+
+        /* Cyber grid lines effect for container */
+        #gameContainer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 0.75rem;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.25), inset 0 0 20px rgba(176, 38, 255, 0.15);
+            z-index: 5;
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-between p-2 sm:p-4 select-none">
 
     <!-- Header / Score Board -->
-    <header class="w-full max-w-2xl flex justify-between items-center px-4 py-2 text-xs sm:text-sm border-b-2 border-emerald-900 z-10">
-        <div>
-            <span class="text-gray-400 block sm:inline">SCORE</span>
-            <span id="scoreDisplay" class="text-white ml-0 sm:ml-2">0000</span>
+    <header class="w-full max-w-2xl flex justify-between items-center px-5 py-3 rounded-xl neon-panel z-10 font-bold tracking-wider">
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-cyan-300/70 block sm:inline">SCORE</span>
+            <span id="scoreDisplay" class="text-sm sm:text-base neon-glow-cyan">0000</span>
         </div>
-        <div>
-            <span class="text-gray-400 block sm:inline">HIGH</span>
-            <span id="highScoreDisplay" class="text-yellow-400 ml-0 sm:ml-2">0000</span>
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-yellow-300/70 block sm:inline">HIGH</span>
+            <span id="highScoreDisplay" class="text-sm sm:text-base neon-glow-yellow">0000</span>
         </div>
-        <div>
-            <span class="text-gray-400 block sm:inline">WAVE</span>
-            <span id="waveDisplay" class="text-cyan-400 ml-0 sm:ml-2">1</span>
+        <div class="flex items-center gap-2">
+            <span class="text-xs text-pink-300/70 block sm:inline">WAVE</span>
+            <span id="waveDisplay" class="text-sm sm:text-base neon-glow-pink">1</span>
         </div>
     </header>
 
     <!-- Game Screen Container -->
-    <main id="gameContainer" class="relative flex-1 w-full max-w-2xl my-2 flex items-center justify-center overflow-hidden">
+    <main id="gameContainer" class="relative flex-1 w-full max-w-2xl my-3 flex items-center justify-center overflow-hidden rounded-xl">
         <!-- Canvas -->
-        <canvas id="gameCanvas" class="pixel-border rounded-lg max-w-full max-h-full aspect-[4/3]"></canvas>
+        <canvas id="gameCanvas" class="rounded-xl max-w-full max-h-full aspect-[4/3]"></canvas>
 
-        <!-- CRT Screen Scanline FX -->
-        <div class="crt-overlay absolute inset-0 rounded-lg"></div>
+        <!-- CRT Screen Scanline & Cyber Overlay FX -->
+        <div class="crt-overlay absolute inset-0 rounded-xl"></div>
 
         <!-- Power Up Status Display -->
-        <div id="powerupHud" class="absolute top-3 left-4 flex gap-2 text-[10px] text-yellow-300 z-10 pointer-events-none"></div>
+        <div id="powerupHud" class="absolute top-4 left-5 flex gap-2 text-xs font-bold z-10 pointer-events-none"></div>
 
         <!-- Overlay Screen (Start / Game Over) -->
-        <div id="overlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center p-6 text-center z-20 transition-opacity duration-300">
-            <h1 id="overlayTitle" class="text-xl sm:text-3xl text-emerald-400 mb-2 tracking-wider leading-relaxed">
-                SPACE<br><span class="text-white">INVADERS EX</span>
-            </h1>
-            <p id="overlaySub" class="text-xs sm:text-sm text-gray-300 mb-6 leading-6">
-                矢印キー/ボタン: 移動<br>
-                スペース/FIRE: 攻撃<br>
-                Bキー/BOMB: 画面全体ボム攻撃
+        <div id="overlay" class="absolute inset-0 bg-[#03030c]/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20 transition-all duration-300">
+            <div class="pulse-title mb-4">
+                <h1 id="overlayTitle" class="text-2xl sm:text-4xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-500 to-purple-500">
+                    NEON<br><span class="text-white text-3xl sm:text-5xl neon-glow-pink">INVADERS</span>
+                </h1>
+                <div class="h-0.5 w-32 mx-auto mt-2 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+            </div>
+
+            <p id="overlaySub" class="text-xs sm:text-sm text-cyan-200/80 mb-6 leading-relaxed font-mono">
+                矢印キー / [A][D] : 移動<br>
+                スペース / [FIRE] : ネオンレーザー発射<br>
+                [B]キー / [BOMB] : MEGA NEON BOMB
             </p>
-            <button id="startBtn" class="arcade-btn px-6 py-3 text-sm sm:text-base rounded tracking-widest flex items-center gap-2">
-                <i class="fa-solid fa-play"></i> START GAME
+            <button id="startBtn" class="neon-btn px-8 py-3.5 text-sm sm:text-base rounded-lg tracking-widest font-bold flex items-center gap-3">
+                <i class="fa-solid fa-play"></i> START MISSION
             </button>
         </div>
     </main>
 
     <!-- Footer Controls -->
-    <footer class="w-full max-w-2xl flex flex-col gap-2 z-10">
+    <footer class="w-full max-w-2xl flex flex-col gap-2.5 z-10">
         <!-- Status Bar -->
-        <div class="flex justify-between items-center px-4 text-xs">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1">
-                    <span class="text-gray-400">LIVES:</span>
-                    <div id="livesContainer" class="flex gap-1 text-emerald-400"></div>
+        <div class="flex justify-between items-center px-4 py-1.5 rounded-lg neon-panel text-xs">
+            <div class="flex items-center gap-5">
+                <div class="flex items-center gap-2">
+                    <span class="text-cyan-300/70 font-semibold">LIVES:</span>
+                    <div id="livesContainer" class="flex gap-1.5 text-emerald-400 text-sm"></div>
                 </div>
-                <div class="flex items-center gap-1">
-                    <span class="text-gray-400">BOMBS:</span>
-                    <div id="bombsContainer" class="flex gap-1 text-yellow-400"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-yellow-300/70 font-semibold">BOMBS:</span>
+                    <div id="bombsContainer" class="flex gap-1.5 text-yellow-400 text-sm"></div>
                 </div>
             </div>
-            <button id="soundToggle" class="text-gray-400 hover:text-white transition">
+            <button id="soundToggle" class="text-cyan-300/80 hover:text-cyan-200 transition flex items-center gap-1.5 font-bold">
                 <i id="soundIcon" class="fa-solid fa-volume-high"></i> SOUND
             </button>
         </div>
 
         <!-- Touch Controls for Mobile -->
-        <div class="grid grid-cols-4 gap-2 p-2 bg-slate-950/80 rounded-xl border border-slate-800">
-            <button id="btnLeft" class="arcade-btn py-4 rounded text-lg flex justify-center items-center">
+        <div class="grid grid-cols-4 gap-2.5 p-2.5 bg-slate-950/80 rounded-xl border border-cyan-500/30 shadow-[0_0_15px_rgba(0,243,255,0.1)]">
+            <button id="btnLeft" class="neon-btn py-3.5 rounded-lg text-xl flex justify-center items-center">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <button id="btnRight" class="arcade-btn py-4 rounded text-lg flex justify-center items-center">
+            <button id="btnRight" class="neon-btn py-3.5 rounded-lg text-xl flex justify-center items-center">
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
-            <button id="btnFire" class="arcade-btn arcade-btn-red py-4 rounded text-base flex justify-center items-center">
+            <button id="btnFire" class="neon-btn neon-btn-pink py-3.5 rounded-lg text-sm font-bold flex justify-center items-center gap-1">
                 <i class="fa-solid fa-crosshairs"></i> FIRE
             </button>
-            <button id="btnBomb" class="arcade-btn arcade-btn-yellow py-4 rounded text-base flex justify-center items-center">
+            <button id="btnBomb" class="neon-btn neon-btn-yellow py-3.5 rounded-lg text-sm font-bold flex justify-center items-center gap-1">
                 <i class="fa-solid fa-bomb"></i> BOMB
             </button>
         </div>
     </footer>
 
-    <!-- JavaScript Game Logic -->
+    <!-- JavaScript Game Logic with Advanced Neon Canvas FX -->
     <script>
         class SoundFX {
             constructor() {
@@ -178,20 +273,20 @@
                 if (this.muted || !this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(850, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.12);
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(1050, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.14);
+                gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.14);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.12);
+                osc.stop(this.ctx.currentTime + 0.14);
             }
 
             playExplosion() {
                 if (this.muted || !this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 0.25;
+                const bufferSize = this.ctx.sampleRate * 0.28;
                 const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                 const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
@@ -199,11 +294,11 @@
                 noise.buffer = buffer;
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
-                filter.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.25);
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(30, this.ctx.currentTime + 0.28);
                 const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.28);
                 noise.connect(filter);
                 filter.connect(gain);
                 gain.connect(this.ctx.destination);
@@ -214,29 +309,29 @@
                 if (this.muted || !this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                osc.type = 'triangle';
+                osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.06);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.07);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.06);
+                osc.stop(this.ctx.currentTime + 0.07);
             }
 
             playPowerUp() {
                 if (this.muted || !this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.25);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(350, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.3);
                 gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
+                osc.stop(this.ctx.currentTime + 0.3);
             }
 
             playBomb() {
@@ -244,14 +339,14 @@
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.6);
-                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+                osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.7);
+                gain.gain.setValueAtTime(0.45, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.7);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.6);
+                osc.stop(this.ctx.currentTime + 0.7);
             }
         }
 
@@ -286,36 +381,68 @@
         let wave = 1;
         let combo = 0;
         let comboTimer = 0;
+        let bgGridOffsetY = 0;
 
         highScoreDisplay.textContent = String(highScore).padStart(4, '0');
 
         const keys = { left: false, right: false, shoot: false };
 
+        // Background Cyber Stars & Grid
+        const bgStars = Array.from({ length: 35 }, () => ({
+            x: Math.random() * CANVAS_WIDTH,
+            y: Math.random() * CANVAS_HEIGHT,
+            size: Math.random() * 1.8 + 0.5,
+            speed: Math.random() * 0.4 + 0.1,
+            color: Math.random() > 0.5 ? '#00f3ff' : '#ff007f'
+        }));
+
         // Player
         const player = {
             x: CANVAS_WIDTH / 2 - 12,
-            y: CANVAS_HEIGHT - 30,
+            y: CANVAS_HEIGHT - 32,
             width: 24,
             height: 14,
-            speed: 3.8,
+            speed: 4.2,
             cooldown: 0,
             shield: false,
-            weaponType: 'NORMAL', // 'NORMAL', 'TRIPLE', 'FAST'
+            weaponType: 'NORMAL',
             weaponTimer: 0,
             draw() {
-                // Shield Aura
+                ctx.save();
+                // Shield Aura (Neon Ring)
                 if (this.shield) {
-                    ctx.strokeStyle = '#00ffff';
+                    ctx.shadowColor = '#00f3ff';
+                    ctx.shadowBlur = 15;
+                    ctx.strokeStyle = '#00f3ff';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.arc(this.x + 12, this.y + 6, 18, 0, Math.PI * 2);
+                    ctx.arc(this.x + 12, this.y + 6, 19, 0, Math.PI * 2);
                     ctx.stroke();
                 }
-                ctx.fillStyle = this.weaponType === 'TRIPLE' ? '#ffcc00' : this.weaponType === 'FAST' ? '#ff00ff' : '#00ff66';
-                ctx.fillRect(this.x + 10, this.y - 4, 4, 4);
+
+                // Player Body Neon Glow
+                const mainColor = this.weaponType === 'TRIPLE' ? '#ffe600' : this.weaponType === 'FAST' ? '#ff007f' : '#00f3ff';
+                ctx.shadowColor = mainColor;
+                ctx.shadowBlur = 12;
+                ctx.fillStyle = mainColor;
+
+                // Cannon Top
+                ctx.fillRect(this.x + 10, this.y - 5, 4, 5);
                 ctx.fillRect(this.x + 8, this.y, 8, 4);
-                ctx.fillRect(this.x + 2, this.y + 4, 20, 4);
+                // Wings & Core
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x + 4, this.y + 4, 16, 4);
+                ctx.fillStyle = mainColor;
                 ctx.fillRect(this.x, this.y + 8, 24, 6);
+
+                // Engine Thruster Glow Effect
+                ctx.shadowColor = '#ff007f';
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = '#ff007f';
+                ctx.fillRect(this.x + 6, this.y + 14, 3, 3 + Math.random() * 3);
+                ctx.fillRect(this.x + 15, this.y + 14, 3, 3 + Math.random() * 3);
+
+                ctx.restore();
             },
             update() {
                 if (keys.left && this.x > 8) this.x -= this.speed;
@@ -331,10 +458,10 @@
         // Power-ups Drops
         let powerups = [];
         const POWERUP_TYPES = [
-            { type: 'TRIPLE', symbol: '3W', color: '#ffcc00', label: '3WAY SHOT' },
-            { type: 'FAST', symbol: 'FR', color: '#ff00ff', label: 'FAST FIRE' },
-            { type: 'SHIELD', symbol: 'SH', color: '#00ffff', label: 'SHIELD' },
-            { type: 'BOMB', symbol: 'BM', color: '#ff3333', label: '+1 BOMB' }
+            { type: 'TRIPLE', symbol: '3W', color: '#ffe600', label: '3-WAY LASER' },
+            { type: 'FAST', symbol: 'FR', color: '#ff007f', label: 'RAPID FIRE' },
+            { type: 'SHIELD', symbol: 'SH', color: '#00f3ff', label: 'NEON SHIELD' },
+            { type: 'BOMB', symbol: 'BM', color: '#ff3333', label: '+1 MEGA BOMB' }
         ];
 
         // Bullets & Particles
@@ -346,7 +473,6 @@
 
         // UFO
         let ufo = null;
-        let ufoTimer = 0;
 
         // Boss System
         let boss = null;
@@ -359,7 +485,7 @@
         let invaderMoveTimer = 0;
         let invaderMoveInterval = 40;
         let invaderStepIndex = 0;
-        const stepPitch = [120, 100, 90, 80];
+        const stepPitch = [150, 130, 110, 90];
 
         const invaderSprites = {
             top: [[0,0,1,1,0,0],[0,1,1,1,1,0],[1,1,1,1,1,1],[1,1,0,0,1,1],[1,0,1,1,0,1]],
@@ -373,7 +499,7 @@
         }
 
         function createFloatingText(x, y, text, color = '#ffffff') {
-            floatingTexts.push({ x, y, text, color, life: 30, vy: -1 });
+            floatingTexts.push({ x, y, text, color, life: 35, vy: -1.2 });
         }
 
         function createInvaders() {
@@ -383,28 +509,28 @@
             // Check for Boss Wave (Every 3 Waves)
             if (wave % 3 === 0) {
                 boss = {
-                    x: CANVAS_WIDTH / 2 - 30,
+                    x: CANVAS_WIDTH / 2 - 35,
                     y: 40,
-                    width: 60,
-                    height: 35,
-                    hp: 40 + wave * 10,
-                    maxHp: 40 + wave * 10,
+                    width: 70,
+                    height: 38,
+                    hp: 45 + wave * 15,
+                    maxHp: 45 + wave * 15,
                     direction: 1,
-                    speed: 1.5,
+                    speed: 1.8,
                     shootTimer: 0
                 };
                 return;
             }
 
             const startX = 40;
-            const startY = 40;
+            const startY = 42;
             const spacingX = 36;
             const spacingY = 22;
 
             for (let r = 0; r < INVADER_ROWS; r++) {
-                let type = 'bot', pts = 10, color = '#33ffaa';
-                if (r === 0) { type = 'top'; pts = 30; color = '#ff0055'; }
-                else if (r < 3) { type = 'mid'; pts = 20; color = '#00e5ff'; }
+                let type = 'bot', pts = 10, color = '#39ff14', glow = '#00ff66';
+                if (r === 0) { type = 'top'; pts = 30; color = '#ff007f'; glow = '#ff00aa'; }
+                else if (r < 3) { type = 'mid'; pts = 20; color = '#00f3ff'; glow = '#0088ff'; }
 
                 for (let c = 0; c < INVADER_COLS; c++) {
                     invaders.push({
@@ -412,12 +538,12 @@
                         y: startY + r * spacingY,
                         width: 18,
                         height: 14,
-                        type, points: pts, color, alive: true
+                        type, points: pts, color, glow, alive: true
                     });
                 }
             }
             invaderDirection = 1;
-            invaderMoveInterval = Math.max(6, 40 - (wave - 1) * 4);
+            invaderMoveInterval = Math.max(5, 38 - (wave - 1) * 4);
         }
 
         function createBunkers() {
@@ -427,7 +553,7 @@
 
             for (let i = 0; i < bunkerCount; i++) {
                 const bx = spacing * (i + 1) - 18;
-                const by = CANVAS_HEIGHT - 75;
+                const by = CANVAS_HEIGHT - 80;
                 const blocks = [];
                 for (let r = 0; r < 4; r++) {
                     for (let c = 0; c < 6; c++) {
@@ -443,12 +569,12 @@
             if (!ufo && Math.random() < 0.003 && !boss) {
                 const dir = Math.random() < 0.5 ? 1 : -1;
                 ufo = {
-                    x: dir === 1 ? -30 : CANVAS_WIDTH + 10,
-                    y: 20,
-                    width: 28,
-                    height: 12,
-                    speed: 2 * dir,
-                    color: '#ff0000'
+                    x: dir === 1 ? -35 : CANVAS_WIDTH + 10,
+                    y: 22,
+                    width: 32,
+                    height: 14,
+                    speed: 2.2 * dir,
+                    color: '#ff007f'
                 };
             }
         }
@@ -456,34 +582,50 @@
         function updateUFO() {
             if (!ufo) return;
             ufo.x += ufo.speed;
-            if (ufo.x < -40 || ufo.x > CANVAS_WIDTH + 40) ufo = null;
+            if (ufo.x < -45 || ufo.x > CANVAS_WIDTH + 45) ufo = null;
         }
 
         function drawUFO() {
             if (!ufo) return;
+            ctx.save();
+            ctx.shadowColor = '#ff007f';
+            ctx.shadowBlur = 14;
             ctx.fillStyle = ufo.color;
-            ctx.fillRect(ufo.x + 8, ufo.y, 12, 3);
-            ctx.fillRect(ufo.x + 4, ufo.y + 3, 20, 4);
-            ctx.fillRect(ufo.x, ufo.y + 7, 28, 3);
+            ctx.fillRect(ufo.x + 10, ufo.y, 12, 3);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(ufo.x + 4, ufo.y + 3, 24, 4);
+            ctx.fillStyle = ufo.color;
+            ctx.fillRect(ufo.x, ufo.y + 7, 32, 4);
+            ctx.restore();
         }
 
         function drawBoss() {
             if (!boss) return;
-            // Boss HP Bar
-            ctx.fillStyle = '#333';
-            ctx.fillRect(CANVAS_WIDTH / 2 - 60, 10, 120, 8);
-            ctx.fillStyle = '#ff0055';
-            ctx.fillRect(CANVAS_WIDTH / 2 - 60, 10, (120 * boss.hp) / boss.maxHp, 8);
-            ctx.strokeStyle = '#ffffff';
-            ctx.strokeRect(CANVAS_WIDTH / 2 - 60, 10, 120, 8);
+            ctx.save();
 
-            // Boss Body
-            ctx.fillStyle = '#ff0055';
-            ctx.fillRect(boss.x + 10, boss.y, 40, 10);
-            ctx.fillRect(boss.x, boss.y + 10, 60, 15);
-            ctx.fillStyle = '#ffff00';
-            ctx.fillRect(boss.x + 15, boss.y + 25, 10, 10);
-            ctx.fillRect(boss.x + 35, boss.y + 25, 10, 10);
+            // Boss Neon HP Bar
+            ctx.fillStyle = '#100520';
+            ctx.fillRect(CANVAS_WIDTH / 2 - 70, 10, 140, 10);
+            ctx.shadowColor = '#ff007f';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = '#ff007f';
+            ctx.fillRect(CANVAS_WIDTH / 2 - 70, 10, (140 * boss.hp) / boss.maxHp, 10);
+            ctx.strokeStyle = '#00f3ff';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(CANVAS_WIDTH / 2 - 70, 10, 140, 10);
+
+            // Boss Body Neon Drawing
+            ctx.shadowColor = '#ff007f';
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#ff007f';
+            ctx.fillRect(boss.x + 12, boss.y, 46, 12);
+            ctx.fillStyle = '#00f3ff';
+            ctx.fillRect(boss.x, boss.y + 12, 70, 16);
+            ctx.fillStyle = '#ffe600';
+            ctx.fillRect(boss.x + 18, boss.y + 28, 12, 10);
+            ctx.fillRect(boss.x + 40, boss.y + 28, 12, 10);
+
+            ctx.restore();
         }
 
         function updateBoss() {
@@ -494,19 +636,22 @@
             }
 
             boss.shootTimer++;
-            if (boss.shootTimer > 35) {
+            if (boss.shootTimer > 32) {
                 boss.shootTimer = 0;
-                // Triple bullet attack from boss
                 invaderBullets.push(
-                    { x: boss.x + 10, y: boss.y + boss.height, speed: 2.5, vx: -0.5 },
-                    { x: boss.x + boss.width / 2, y: boss.y + boss.height, speed: 3, vx: 0 },
-                    { x: boss.x + boss.width - 10, y: boss.y + boss.height, speed: 2.5, vx: 0.5 }
+                    { x: boss.x + 12, y: boss.y + boss.height, speed: 2.8, vx: -0.6 },
+                    { x: boss.x + boss.width / 2, y: boss.y + boss.height, speed: 3.2, vx: 0 },
+                    { x: boss.x + boss.width - 12, y: boss.y + boss.height, speed: 2.8, vx: 0.6 }
                 );
             }
         }
 
         function drawInvaderSprite(inv) {
+            ctx.save();
+            ctx.shadowColor = inv.glow;
+            ctx.shadowBlur = 10;
             ctx.fillStyle = inv.color;
+
             const sprite = invaderSprites[inv.type];
             for (let r = 0; r < sprite.length; r++) {
                 for (let c = 0; c < sprite[r].length; c++) {
@@ -515,15 +660,19 @@
                     }
                 }
             }
+            ctx.restore();
         }
 
-        function createParticles(x, y, color, count = 8) {
+        function createParticles(x, y, color, count = 12) {
             for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = (Math.random() * 3.5 + 1);
                 particles.push({
                     x, y,
-                    vx: (Math.random() - 0.5) * 5,
-                    vy: (Math.random() - 0.5) * 5,
-                    life: 15 + Math.random() * 12,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 18 + Math.random() * 14,
+                    maxLife: 32,
                     color
                 });
             }
@@ -546,7 +695,7 @@
                 wave++;
                 waveDisplay.textContent = wave;
                 sound.playPowerUp();
-                createFloatingText(CANVAS_WIDTH / 2 - 40, CANVAS_HEIGHT / 2, 'WAVE CLEARED!', '#00ff66');
+                createFloatingText(CANVAS_WIDTH / 2 - 50, CANVAS_HEIGHT / 2, 'WAVE CLEARED!', '#00f3ff');
                 createInvaders();
                 return;
             }
@@ -569,13 +718,13 @@
                 aliveInvaders.forEach(inv => inv.x += invaderDirection * 8);
             }
 
-            if (Math.random() < 0.35 + wave * 0.04) {
+            if (Math.random() < 0.38 + wave * 0.04) {
                 const shooter = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
                 if (shooter) {
                     invaderBullets.push({
                         x: shooter.x + shooter.width / 2,
                         y: shooter.y + shooter.height,
-                        speed: 2.5 + wave * 0.15,
+                        speed: 2.6 + wave * 0.15,
                         vx: 0
                     });
                 }
@@ -584,7 +733,7 @@
 
         function spawnPowerup(x, y) {
             const p = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
-            powerups.push({ x, y, ...p, speed: 1.5 });
+            powerups.push({ x, y, ...p, speed: 1.6 });
         }
 
         function updatePowerups() {
@@ -593,18 +742,18 @@
                 p.y += p.speed;
 
                 // Collect Powerup
-                if (p.x >= player.x - 10 && p.x <= player.x + player.width + 10 &&
-                    p.y >= player.y - 5 && p.y <= player.y + player.height + 5) {
+                if (p.x >= player.x - 12 && p.x <= player.x + player.width + 12 &&
+                    p.y >= player.y - 8 && p.y <= player.y + player.height + 8) {
                     
                     sound.playPowerUp();
                     createFloatingText(p.x, p.y, p.label, p.color);
 
                     if (p.type === 'TRIPLE') {
                         player.weaponType = 'TRIPLE';
-                        player.weaponTimer = 350;
+                        player.weaponTimer = 380;
                     } else if (p.type === 'FAST') {
                         player.weaponType = 'FAST';
-                        player.weaponTimer = 350;
+                        player.weaponTimer = 380;
                     } else if (p.type === 'SHIELD') {
                         player.shield = true;
                     } else if (p.type === 'BOMB') {
@@ -622,11 +771,15 @@
 
         function drawPowerups() {
             powerups.forEach(p => {
+                ctx.save();
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 12;
                 ctx.fillStyle = p.color;
-                ctx.fillRect(p.x - 8, p.y - 8, 16, 16);
-                ctx.fillStyle = '#000000';
-                ctx.font = '8px "Press Start 2P"';
-                ctx.fillText(p.symbol, p.x - 6, p.y + 3);
+                ctx.fillRect(p.x - 9, p.y - 9, 18, 18);
+                ctx.fillStyle = '#03030c';
+                ctx.font = 'bold 8px "Orbitron"';
+                ctx.fillText(p.symbol, p.x - 7, p.y + 3);
+                ctx.restore();
             });
         }
 
@@ -637,12 +790,12 @@
                 if (ufo && b.x >= ufo.x && b.x <= ufo.x + ufo.width &&
                     b.y >= ufo.y && b.y <= ufo.y + ufo.height) {
                     
-                    const bonus = 150 * (combo + 1);
+                    const bonus = 200 * (combo + 1);
                     score += bonus;
-                    createFloatingText(ufo.x, ufo.y, `+${bonus}`, '#ff0055');
+                    createFloatingText(ufo.x, ufo.y, `+${bonus}`, '#ff007f');
                     sound.playExplosion();
-                    createParticles(ufo.x + 14, ufo.y + 6, '#ff0055', 15);
-                    spawnPowerup(ufo.x + 14, ufo.y + 6);
+                    createParticles(ufo.x + 16, ufo.y + 7, '#ff007f', 18);
+                    spawnPowerup(ufo.x + 16, ufo.y + 7);
                     ufo = null;
                     playerBullets.splice(bIndex, 1);
                     continue;
@@ -654,14 +807,14 @@
                     
                     boss.hp--;
                     playerBullets.splice(bIndex, 1);
-                    createParticles(b.x, b.y, '#ffcc00', 4);
+                    createParticles(b.x, b.y, '#ffe600', 5);
 
                     if (boss.hp <= 0) {
-                        score += 1000;
-                        createFloatingText(boss.x + 15, boss.y, '+1000 BOSS CLEAR!', '#ffff00');
+                        score += 1500;
+                        createFloatingText(boss.x + 10, boss.y, '+1500 BOSS DESTROYED!', '#ffe600');
                         sound.playExplosion();
                         triggerScreenShake();
-                        createParticles(boss.x + 30, boss.y + 15, '#ff0055', 40);
+                        createParticles(boss.x + 35, boss.y + 19, '#ff007f', 45);
                         boss = null;
                         wave++;
                         waveDisplay.textContent = wave;
@@ -679,10 +832,10 @@
                         playerBullets.splice(bIndex, 1);
 
                         combo++;
-                        comboTimer = 60;
+                        comboTimer = 65;
                         const pts = inv.points * Math.min(combo, 5);
                         score += pts;
-                        if (combo > 1) createFloatingText(inv.x, inv.y, `${combo}x COMBO!`, '#ffcc00');
+                        if (combo > 1) createFloatingText(inv.x, inv.y, `${combo}x COMBO!`, '#ffe600');
 
                         scoreDisplay.textContent = String(score).padStart(4, '0');
                         if (score > highScore) {
@@ -691,10 +844,10 @@
                             localStorage.setItem('invaders_ex_highscore', highScore);
                         }
 
-                        if (Math.random() < 0.08) spawnPowerup(inv.x + 9, inv.y + 7);
+                        if (Math.random() < 0.1) spawnPowerup(inv.x + 9, inv.y + 7);
 
                         sound.playExplosion();
-                        createParticles(inv.x + inv.width / 2, inv.y + inv.height / 2, inv.color, 10);
+                        createParticles(inv.x + inv.width / 2, inv.y + inv.height / 2, inv.color, 12);
 
                         const aliveCount = invaders.filter(i => i.alive).length;
                         invaderMoveInterval = Math.max(4, Math.floor((aliveCount / (INVADER_ROWS * INVADER_COLS)) * 35));
@@ -715,7 +868,7 @@
                                 bullet.y >= block.y && bullet.y <= block.y + block.height) {
                                 block.hp--;
                                 if (block.hp <= 0) bunker.splice(blockIndex, 1);
-                                createParticles(bullet.x, bullet.y, '#00ff66', 3);
+                                createParticles(bullet.x, bullet.y, '#00f3ff', 4);
                                 bulletArr.splice(bIndex, 1);
                                 hit = true;
                                 break;
@@ -740,13 +893,13 @@
                     if (player.shield) {
                         player.shield = false;
                         sound.playExplosion();
-                        createFloatingText(player.x, player.y, 'SHIELD BREAK!', '#00ffff');
+                        createFloatingText(player.x, player.y, 'SHIELD BROKEN!', '#00f3ff');
                         continue;
                     }
 
                     sound.playExplosion();
                     triggerScreenShake();
-                    createParticles(player.x + 12, player.y + 7, '#ff0055', 25);
+                    createParticles(player.x + 12, player.y + 7, '#ff007f', 30);
 
                     lives--;
                     updateLivesUI();
@@ -763,47 +916,54 @@
             sound.playBomb();
             triggerScreenShake();
 
-            // Clear Enemy Bullets & Damage Invaders
+            // Clear Enemy Bullets & Blast Invaders
             invaderBullets = [];
             invaders.forEach(inv => {
                 if (inv.alive) {
                     inv.alive = false;
                     score += inv.points;
-                    createParticles(inv.x + 9, inv.y + 7, '#ffcc00', 6);
+                    createParticles(inv.x + 9, inv.y + 7, '#ffe600', 8);
                 }
             });
 
-            if (boss) boss.hp -= 15;
+            if (boss) boss.hp -= 20;
 
             scoreDisplay.textContent = String(score).padStart(4, '0');
-            createFloatingText(CANVAS_WIDTH / 2 - 30, CANVAS_HEIGHT / 2, 'MEGA BOMB!', '#ff3333');
+            createFloatingText(CANVAS_WIDTH / 2 - 50, CANVAS_HEIGHT / 2, 'MEGA NEON BOMB!', '#ff007f');
         }
 
         function updateLivesUI() {
             livesContainer.innerHTML = '';
-            for (let i = 0; i < lives; i++) livesContainer.innerHTML += '<i class="fa-solid fa-rocket"></i>';
+            for (let i = 0; i < lives; i++) {
+                livesContainer.innerHTML += '<i class="fa-solid fa-shuttle-space text-cyan-400 drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]"></i>';
+            }
         }
 
         function updateBombsUI() {
             bombsContainer.innerHTML = '';
-            for (let i = 0; i < bombs; i++) bombsContainer.innerHTML += '<i class="fa-solid fa-bomb"></i>';
+            for (let i = 0; i < bombs; i++) {
+                bombsContainer.innerHTML += '<i class="fa-solid fa-atom text-yellow-400 drop-shadow-[0_0_8px_rgba(255,230,0,0.8)]"></i>';
+            }
         }
 
         function updatePowerupHud() {
             powerupHud.innerHTML = '';
-            if (player.shield) powerupHud.innerHTML += '<span class="bg-cyan-900/80 px-2 py-1 rounded text-cyan-300">SHIELD</span>';
+            if (player.shield) {
+                powerupHud.innerHTML += '<span class="bg-cyan-950/90 border border-cyan-400 px-2 py-0.5 rounded text-cyan-300 shadow-[0_0_8px_rgba(0,243,255,0.5)]">SHIELD</span>';
+            }
             if (player.weaponType !== 'NORMAL') {
                 const sec = Math.ceil(player.weaponTimer / 60);
-                powerupHud.innerHTML += `<span class="bg-yellow-900/80 px-2 py-1 rounded text-yellow-300">${player.weaponType} (${sec}s)</span>`;
+                const colorClass = player.weaponType === 'TRIPLE' ? 'bg-yellow-950/90 border-yellow-400 text-yellow-300 shadow-[0_0_8px_rgba(255,230,0,0.5)]' : 'bg-pink-950/90 border-pink-400 text-pink-300 shadow-[0_0_8px_rgba(255,0,127,0.5)]';
+                powerupHud.innerHTML += `<span class="border px-2 py-0.5 rounded ${colorClass}">${player.weaponType} (${sec}s)</span>`;
             }
         }
 
         function triggerGameOver() {
             gameState = 'GAMEOVER';
             overlayTitle.innerHTML = 'GAME OVER';
-            overlayTitle.className = 'text-xl sm:text-3xl text-red-500 mb-2 tracking-wider';
-            overlaySub.textContent = `FINAL SCORE: ${score}`;
-            startBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> RESTART';
+            overlayTitle.className = 'text-3xl sm:text-5xl font-extrabold text-pink-500 neon-glow-pink tracking-widest';
+            overlaySub.textContent = `FINAL MISSION SCORE: ${score}`;
+            startBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> RESTART MISSION';
             overlay.classList.remove('hidden');
         }
 
@@ -813,20 +973,20 @@
             if (player.cooldown <= 0) {
                 if (player.weaponType === 'TRIPLE') {
                     playerBullets.push(
-                        { x: player.x + 12, y: player.y - 6, speed: 6.5, vx: -1 },
-                        { x: player.x + 12, y: player.y - 6, speed: 6.5, vx: 0 },
-                        { x: player.x + 12, y: player.y - 6, speed: 6.5, vx: 1 }
+                        { x: player.x + 12, y: player.y - 6, speed: 7.2, vx: -1.2 },
+                        { x: player.x + 12, y: player.y - 6, speed: 7.2, vx: 0 },
+                        { x: player.x + 12, y: player.y - 6, speed: 7.2, vx: 1.2 }
                     );
-                    player.cooldown = 14;
+                    player.cooldown = 13;
                 } else {
-                    playerBullets.push({ x: player.x + 12, y: player.y - 6, speed: 6.5, vx: 0 });
-                    player.cooldown = player.weaponType === 'FAST' ? 7 : 16;
+                    playerBullets.push({ x: player.x + 12, y: player.y - 6, speed: 7.2, vx: 0 });
+                    player.cooldown = player.weaponType === 'FAST' ? 6 : 15;
                 }
                 sound.playShoot();
             }
         }
 
-        // Keys
+        // Keyboard Controls
         window.addEventListener('keydown', (e) => {
             if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
             if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
@@ -840,7 +1000,7 @@
             if (e.code === 'Space') keys.shoot = false;
         });
 
-        // Mobile Buttons
+        // Touch Controls
         const bindTouch = (elem, action) => {
             elem.addEventListener('touchstart', (e) => { e.preventDefault(); action(); });
             elem.addEventListener('mousedown', (e) => { action(); });
@@ -896,10 +1056,48 @@
             resetGame();
         });
 
+        // Background Cyber Grid Drawing
+        function drawBackground() {
+            ctx.fillStyle = '#04020a';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // Stars
+            bgStars.forEach(s => {
+                s.y += s.speed;
+                if (s.y > CANVAS_HEIGHT) s.y = 0;
+                ctx.save();
+                ctx.shadowColor = s.color;
+                ctx.shadowBlur = 6;
+                ctx.fillStyle = s.color;
+                ctx.fillRect(s.x, s.y, s.size, s.size);
+                ctx.restore();
+            });
+
+            // Scrolling Perspective Cyber Grid Lines
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.08)';
+            ctx.lineWidth = 1;
+            bgGridOffsetY = (bgGridOffsetY + 0.5) % 24;
+
+            for (let x = 0; x < CANVAS_WIDTH; x += 24) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, CANVAS_HEIGHT);
+                ctx.stroke();
+            }
+
+            for (let y = bgGridOffsetY; y < CANVAS_HEIGHT; y += 24) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(CANVAS_WIDTH, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
         // Game Loop
         function gameLoop() {
-            ctx.fillStyle = '#050510';
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            drawBackground();
 
             if (gameState === 'PLAYING') {
                 player.update();
@@ -932,43 +1130,71 @@
                 updatePowerupHud();
             }
 
-            // Drawing
+            // Draw Bunkers
             bunkers.forEach(b => b.forEach(blk => {
-                ctx.fillStyle = blk.hp === 3 ? '#00ff66' : blk.hp === 2 ? '#00aa44' : '#005522';
+                ctx.save();
+                const bColor = blk.hp === 3 ? '#00f3ff' : blk.hp === 2 ? '#00aacc' : '#005577';
+                ctx.shadowColor = bColor;
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = bColor;
                 ctx.fillRect(blk.x, blk.y, blk.width, blk.height);
+                ctx.restore();
             }));
 
+            // Draw Entities
             invaders.forEach(inv => { if (inv.alive) drawInvaderSprite(inv); });
             drawBoss();
             drawUFO();
             drawPowerups();
             player.draw();
 
-            // Bullets
-            ctx.fillStyle = '#ffff00';
-            playerBullets.forEach(b => ctx.fillRect(b.x - 1, b.y, 2, 6));
+            // Player Bullets (Neon Yellow Laser Trailing)
+            ctx.save();
+            ctx.shadowColor = '#ffe600';
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = '#ffe600';
+            playerBullets.forEach(b => {
+                ctx.fillRect(b.x - 1.5, b.y, 3, 8);
+            });
+            ctx.restore();
 
-            ctx.fillStyle = '#ff0055';
-            invaderBullets.forEach(b => ctx.fillRect(b.x - 1, b.y, 3, 6));
+            // Enemy Bullets (Neon Crimson Pink Pulse)
+            ctx.save();
+            ctx.shadowColor = '#ff007f';
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = '#ff007f';
+            invaderBullets.forEach(b => {
+                ctx.fillRect(b.x - 1.5, b.y, 3, 7);
+            });
+            ctx.restore();
 
-            // Particles
+            // Particles Explosion Glow FX
+            ctx.save();
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
                 p.x += p.vx; p.y += p.vy; p.life--;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 10;
                 ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 2, 2);
+                ctx.globalAlpha = p.life / p.maxLife;
+                ctx.fillRect(p.x, p.y, 2.5, 2.5);
                 if (p.life <= 0) particles.splice(i, 1);
             }
+            ctx.restore();
 
-            // Floating Text
+            // Floating Text Glow FX
+            ctx.save();
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
                 const ft = floatingTexts[i];
                 ft.y += ft.vy; ft.life--;
+                ctx.shadowColor = ft.color;
+                ctx.shadowBlur = 12;
                 ctx.fillStyle = ft.color;
-                ctx.font = '8px "Press Start 2P"';
+                ctx.font = 'bold 9px "Orbitron"';
                 ctx.fillText(ft.text, ft.x, ft.y);
                 if (ft.life <= 0) floatingTexts.splice(i, 1);
             }
+            ctx.restore();
 
             requestAnimationFrame(gameLoop);
         }
@@ -976,6 +1202,8 @@
         window.onload = () => {
             createInvaders();
             createBunkers();
+            updateLivesUI();
+            updateBombsUI();
             gameLoop();
         };
     </script>
