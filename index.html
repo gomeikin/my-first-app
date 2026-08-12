@@ -2,982 +2,1361 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SPACE INVADERS EX - Arcade Deluxe</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRIPLE VISION BUSINESS SIMULATOR - 虫の目・鳥の目・魚の目 意思決定トレーニング</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#0b1329',
+                        },
+                        teal: {
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Press Start 2P', monospace;
-            background-color: #030308;
-            color: #00ff66;
-            overflow: hidden;
-            touch-action: manipulation;
-            user-select: none;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #0b1329;
+            color: #f1f5f9;
         }
 
-        .pixel-border {
-            border: 4px solid #00ff66;
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4), inset 0 0 15px rgba(0, 255, 102, 0.2);
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .arcade-btn {
-            background: linear-gradient(180deg, #111 0%, #222 100%);
-            border: 2px solid #00ff66;
-            color: #00ff66;
-            box-shadow: 0 4px 0 #00aa44;
-            transition: all 0.1s ease;
+        .glass-card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-2px);
+            border-color: rgba(45, 212, 191, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(13, 148, 136, 0.2);
         }
 
-        .arcade-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #00aa44;
+        /* Active Tab Styling */
+        .tab-btn {
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active-bug {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 101, 52, 0.3) 100%);
+            border-color: #4ade80;
+            color: #86efac;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.25);
+        }
+        .tab-btn.active-bird {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(3, 105, 161, 0.3) 100%);
+            border-color: #38bdf8;
+            color: #7dd3fc;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
+        }
+        .tab-btn.active-fish {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(126, 34, 206, 0.3) 100%);
+            border-color: #c084fc;
+            color: #e9d5ff;
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.25);
         }
 
-        .arcade-btn-red {
-            border-color: #ff0055;
-            color: #ff0055;
-            box-shadow: 0 4px 0 #aa0033;
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-
-        .arcade-btn-yellow {
-            border-color: #ffcc00;
-            color: #ffcc00;
-            box-shadow: 0 4px 0 #aa8800;
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
         }
-
-        canvas {
-            image-rendering: pixelated;
-            background-color: #050510;
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
         }
-
-        .crt-overlay {
-            background: linear-gradient(
-                rgba(18, 16, 16, 0) 50%, 
-                rgba(0, 0, 0, 0.25) 50%
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(0, 0); }
-            20% { transform: translate(-4px, 4px); }
-            40% { transform: translate(4px, -4px); }
-            60% { transform: translate(-4px, -4px); }
-            80% { transform: translate(4px, 4px); }
-            100% { transform: translate(0, 0); }
-        }
-
-        .shaking {
-            animation: shake 0.2s ease-in-out;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0d9488;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-between p-2 sm:p-4 select-none">
+<body class="min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
 
-    <!-- Header / Score Board -->
-    <header class="w-full max-w-2xl flex justify-between items-center px-4 py-2 text-xs sm:text-sm border-b-2 border-emerald-900 z-10">
-        <div>
-            <span class="text-gray-400 block sm:inline">SCORE</span>
-            <span id="scoreDisplay" class="text-white ml-0 sm:ml-2">0000</span>
-        </div>
-        <div>
-            <span class="text-gray-400 block sm:inline">HIGH</span>
-            <span id="highScoreDisplay" class="text-yellow-400 ml-0 sm:ml-2">0000</span>
-        </div>
-        <div>
-            <span class="text-gray-400 block sm:inline">WAVE</span>
-            <span id="waveDisplay" class="text-cyan-400 ml-0 sm:ml-2">1</span>
+    <!-- Header Navbar -->
+    <header class="border-b border-slate-800 bg-navy-900/90 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 via-sky-500 to-amber-500 p-0.5 shadow-lg shadow-teal-500/20">
+                    <div class="w-full h-full bg-navy-950 rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid fa-eye text-teal-400 text-lg"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        TRIPLE VISION <span class="text-xs px-2 py-0.5 rounded-full bg-teal-900/60 text-teal-300 border border-teal-500/30">BUSINESS SIMULATOR</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">社会人向け 3つの視点（虫の目・鳥の目・魚の目）意思決定トレーナー</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleConceptModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs sm:text-sm text-slate-300 hover:text-white transition flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                    <span class="hidden sm:inline">思考フレームワーク解説</span>
+                </button>
+                <div id="headerProgress" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-navy-950 border border-slate-800 text-xs text-slate-300">
+                    <span class="text-slate-400">進行度:</span>
+                    <span id="currentStepText" class="font-bold text-teal-400">1 / 4</span>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Game Screen Container -->
-    <main id="gameContainer" class="relative flex-1 w-full max-w-2xl my-2 flex items-center justify-center overflow-hidden">
-        <!-- Canvas -->
-        <canvas id="gameCanvas" class="pixel-border rounded-lg max-w-full max-h-full aspect-[4/3]"></canvas>
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
 
-        <!-- CRT Screen Scanline FX -->
-        <div class="crt-overlay absolute inset-0 rounded-lg"></div>
+        <!-- VIEW 1: HOME LANDING PAGE -->
+        <section id="homeView" class="space-y-8 animate-fadeIn">
+            <!-- Hero Concept Banner -->
+            <div class="glass-card rounded-2xl p-6 sm:p-10 border border-slate-700/50 bg-gradient-to-br from-navy-900 via-navy-950 to-slate-900 relative overflow-hidden">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -top-20 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <!-- Power Up Status Display -->
-        <div id="powerupHud" class="absolute top-3 left-4 flex gap-2 text-[10px] text-yellow-300 z-10 pointer-events-none"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                    <div class="lg:col-span-7 space-y-5">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold">
+                            <i class="fa-solid fa-briefcase"></i> ビジネスパーソン・リーダーのための意思決定思考法
+                        </div>
+                        <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                            現場の微視、全社の巨視、市場の流動。<br>
+                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-sky-300 to-amber-300">
+                                3つの視点を自在に行き来する意思決定力を身につけよ。
+                            </span>
+                        </h2>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                            ビジネスで発生する複雑な課題を解決するには、1つの視点だけでは不十分です。<br>
+                            **「虫の目（現場データ・詳細）」**、**「鳥の目（全社戦略・構造）」**、**「魚の目（市場トレンド・時間軸）」**の3つの視点を統合し、確度の高い経営戦略とリーダーシップを発揮しましょう。
+                        </p>
+                        <div class="pt-2 flex flex-wrap gap-4">
+                            <button onclick="startSimulation()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-teal-500/25 transition transform active:scale-95 flex items-center gap-2">
+                                <i class="fa-solid fa-play"></i> シミュレーションを開始する
+                            </button>
+                            <button onclick="toggleConceptModal()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-sm transition flex items-center gap-2">
+                                <i class="fa-solid fa-image text-amber-400"></i> 原典イラスト解説を見る
+                            </button>
+                        </div>
+                    </div>
 
-        <!-- Overlay Screen (Start / Game Over) -->
-        <div id="overlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center p-6 text-center z-20 transition-opacity duration-300">
-            <h1 id="overlayTitle" class="text-xl sm:text-3xl text-emerald-400 mb-2 tracking-wider leading-relaxed">
-                SPACE<br><span class="text-white">INVADERS EX</span>
-            </h1>
-            <p id="overlaySub" class="text-xs sm:text-sm text-gray-300 mb-6 leading-6">
-                矢印キー/ボタン: 移動<br>
-                スペース/FIRE: 攻撃<br>
-                Bキー/BOMB: 画面全体ボム攻撃
-            </p>
-            <button id="startBtn" class="arcade-btn px-6 py-3 text-sm sm:text-base rounded tracking-widest flex items-center gap-2">
-                <i class="fa-solid fa-play"></i> START GAME
-            </button>
-        </div>
-    </main>
-
-    <!-- Footer Controls -->
-    <footer class="w-full max-w-2xl flex flex-col gap-2 z-10">
-        <!-- Status Bar -->
-        <div class="flex justify-between items-center px-4 text-xs">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1">
-                    <span class="text-gray-400">LIVES:</span>
-                    <div id="livesContainer" class="flex gap-1 text-emerald-400"></div>
-                </div>
-                <div class="flex items-center gap-1">
-                    <span class="text-gray-400">BOMBS:</span>
-                    <div id="bombsContainer" class="flex gap-1 text-yellow-400"></div>
+                    <!-- Framework Card Visual -->
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="glass-card rounded-xl p-4 border border-slate-700/60 max-w-sm w-full bg-slate-900/80 shadow-2xl">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-layer-group text-teal-400"></i> 思考フレームワーク原典
+                                </span>
+                                <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">Image20250915204408</span>
+                            </div>
+                            <div class="relative group overflow-hidden rounded-lg border border-slate-700 cursor-pointer" onclick="toggleConceptModal()">
+                                <img src="./image/Image20250915204408.png" alt="虫の目・鳥の目・魚の目" class="w-full object-cover transition transform group-hover:scale-105 duration-300">
+                                <div class="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                    <span class="px-3 py-1.5 bg-slate-900/90 text-white text-xs rounded-full border border-teal-500/50 flex items-center gap-1.5 shadow-lg">
+                                        <i class="fa-solid fa-magnifying-glass-plus text-teal-400"></i> 拡大表示
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 mt-3 text-center text-[11px]">
+                                <div class="p-2 rounded bg-emerald-950/40 border border-emerald-500/30 text-emerald-300">
+                                    <div class="font-bold">虫の目</div>
+                                    <div class="text-[9px] text-emerald-400/80">細かく見る視点</div>
+                                </div>
+                                <div class="p-2 rounded bg-sky-950/40 border border-sky-500/30 text-sky-300">
+                                    <div class="font-bold">鳥の目</div>
+                                    <div class="text-[9px] text-sky-400/80">全体を見る視点</div>
+                                </div>
+                                <div class="p-2 rounded bg-purple-950/40 border border-purple-500/30 text-purple-300">
+                                    <div class="font-bold">魚の目</div>
+                                    <div class="text-[9px] text-purple-400/80">流れを見る視点</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button id="soundToggle" class="text-gray-400 hover:text-white transition">
-                <i id="soundIcon" class="fa-solid fa-volume-high"></i> SOUND
-            </button>
-        </div>
 
-        <!-- Touch Controls for Mobile -->
-        <div class="grid grid-cols-4 gap-2 p-2 bg-slate-950/80 rounded-xl border border-slate-800">
-            <button id="btnLeft" class="arcade-btn py-4 rounded text-lg flex justify-center items-center">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <button id="btnRight" class="arcade-btn py-4 rounded text-lg flex justify-center items-center">
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <button id="btnFire" class="arcade-btn arcade-btn-red py-4 rounded text-base flex justify-center items-center">
-                <i class="fa-solid fa-crosshairs"></i> FIRE
-            </button>
-            <button id="btnBomb" class="arcade-btn arcade-btn-yellow py-4 rounded text-base flex justify-center items-center">
-                <i class="fa-solid fa-bomb"></i> BOMB
-            </button>
+            <!-- Scenario Selection Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-teal-400"></i> 実践ビジネスケースシナリオ
+                    </h3>
+                    <span class="text-xs text-slate-400">全4ケース（選択して開始可能）</span>
+                </div>
+
+                <div id="scenarioSelectGrid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Scenario Cards injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: SIMULATION CASE VIEW -->
+        <section id="simView" class="hidden space-y-6 animate-fadeIn">
+            <!-- Scenario Briefing Header -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-800 bg-gradient-to-r from-slate-900 to-navy-900">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-xs text-teal-400 font-semibold mb-1">
+                            <span id="caseCategoryTag" class="px-2.5 py-0.5 rounded-md bg-teal-950 border border-teal-500/40">ケース 1 / 4</span>
+                            <span id="caseIndustryTag" class="text-slate-400">IT & SaaS業界</span>
+                        </div>
+                        <h2 id="caseTitle" class="text-xl sm:text-2xl font-bold text-white">
+                            新規AIサービスのリリース直前に致命的脆弱性が発覚。どう対応するか？
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-4 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 text-xs">
+                        <div class="text-center">
+                            <div class="text-slate-400">難易度</div>
+                            <div id="caseDifficulty" class="font-bold text-amber-400">★★★★☆</div>
+                        </div>
+                        <div class="w-px h-8 bg-slate-800"></div>
+                        <div class="text-center">
+                            <div class="text-slate-400">主要評価指標</div>
+                            <div id="caseKeyKPI" class="font-bold text-sky-400">信頼 & セキュリティ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p id="caseDescription" class="text-slate-300 text-sm leading-relaxed">
+                    シナリオの状況説明がここに入ります。
+                </p>
+            </div>
+
+            <!-- THREE EYES ANALYSIS TABS -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-teal-400"></i> 分析モード（3つの視点を切り替えて調査）
+                    </div>
+                    <div class="text-xs text-amber-300 bg-amber-950/60 border border-amber-500/30 px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i> 意思決定の前に必ず3つの視点を確認してください
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <button id="tabBug" onclick="switchPerspective('bug')" class="tab-btn active-bug p-3 sm:p-4 rounded-xl border border-slate-700 bg-slate-900 flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left transition">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-base">
+                            <i class="fa-solid fa-bug"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm">虫の目 <span class="hidden md:inline font-normal text-[11px] opacity-80">(Micro)</span></div>
+                            <div class="text-[10px] opacity-75 hidden sm:block">現場データ・詳細ログ・契約条項</div>
+                        </div>
+                    </button>
+
+                    <button id="tabBird" onclick="switchPerspective('bird')" class="tab-btn p-3 sm:p-4 rounded-xl border border-slate-700 bg-slate-900 text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left transition">
+                        <div class="w-8 h-8 rounded-lg bg-sky-500/20 flex items-center justify-center text-sky-400 text-base">
+                            <i class="fa-solid fa-dove"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm">鳥の目 <span class="hidden md:inline font-normal text-[11px] opacity-80">(Macro)</span></div>
+                            <div class="text-[10px] opacity-75 hidden sm:block">全社構造・P/L・リソース配置</div>
+                        </div>
+                    </button>
+
+                    <button id="tabFish" onclick="switchPerspective('fish')" class="tab-btn p-3 sm:p-4 rounded-xl border border-slate-700 bg-slate-900 text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left transition">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400 text-base">
+                            <i class="fa-solid fa-fish"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-xs sm:text-sm">魚の目 <span class="hidden md:inline font-normal text-[11px] opacity-80">(Trend)</span></div>
+                            <div class="text-[10px] opacity-75 hidden sm:block">市場動向・競合トレンド・時系列</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Active Perspective Content Display Panel -->
+                <div id="perspectivePanel" class="glass-card rounded-2xl p-6 border border-slate-800 min-h-[320px] bg-slate-950/80 relative">
+                    <!-- Dynamic perspective analysis injected here -->
+                </div>
+            </div>
+
+            <!-- DECISION CHOICES SECTION -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-800 bg-slate-900/90 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gavel text-amber-400"></i> 戦略的意思決定プランの選択
+                    </h3>
+                    <span class="text-xs text-slate-400">あなたの分析に基づく判断を選択してください</span>
+                </div>
+
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Option Buttons injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: DECISION EVALUATION & REVIEW DEBRIEF -->
+        <section id="reviewView" class="hidden space-y-6 animate-fadeIn">
+            <!-- Outcome Banner -->
+            <div id="outcomeBanner" class="glass-card rounded-2xl p-6 border bg-gradient-to-r">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div id="outcomeBadge" class="inline-block text-xs font-extrabold px-3 py-1 rounded-full mb-2 uppercase tracking-wide">
+                            評価判定: B 判定 (良判断)
+                        </div>
+                        <h2 id="outcomeTitle" class="text-xl sm:text-2xl font-bold text-white">
+                            短期的売上は確保されたが、現場チームへの負荷と長期的信頼リスクが懸念されます。
+                        </h2>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400">獲得意思決定スコア</div>
+                        <div id="decisionScore" class="text-3xl font-extrabold text-amber-400">82 <span class="text-sm text-slate-400">/ 100 pt</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Breakdown: Radar Canvas + Impact KPI Gauges -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- KPI Impact Gauges -->
+                <div class="lg:col-span-7 glass-card rounded-2xl p-6 border border-slate-800 space-y-5">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                        <i class="fa-solid fa-chart-line text-teal-400"></i> 4大経営評価指標 (KPI) への影響
+                    </h3>
+
+                    <div class="space-y-4" id="kpiBarContainer">
+                        <!-- KPI Progress bars dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Radar Chart Visualization -->
+                <div class="lg:col-span-5 glass-card rounded-2xl p-6 border border-slate-800 flex flex-col items-center justify-center">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-radar text-sky-400"></i> 経営インパクトバランス
+                    </h4>
+                    <div class="w-full max-w-[260px] aspect-square relative flex items-center justify-center">
+                        <canvas id="radarCanvas" width="260" height="260"></canvas>
+                    </div>
+                    <div class="flex justify-center gap-4 text-xs mt-3">
+                        <span class="flex items-center gap-1.5 text-slate-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-500 inline-block"></span> 基準値 (50)
+                        </span>
+                        <span class="flex items-center gap-1.5 text-teal-300 font-semibold">
+                            <span class="w-2.5 h-2.5 rounded-full bg-teal-400 inline-block"></span> 判定後結果
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Debrief & Business Theory Explanation -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-4 bg-navy-950/90">
+                <div class="flex items-center gap-2 text-amber-400 font-bold text-base border-b border-slate-800 pb-3">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    <span>ビジネスフレームワーク＆ストラテジー解説</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
+                    <div class="p-3.5 rounded-xl bg-slate-900 border border-emerald-500/20 space-y-1">
+                        <div class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                            <i class="fa-solid fa-bug"></i> 虫の目からの振り返り
+                        </div>
+                        <p id="debriefBug" class="text-xs text-slate-300 leading-relaxed">
+                            現場データや直接的な課題に対する影響解説。
+                        </p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-900 border border-sky-500/20 space-y-1">
+                        <div class="text-xs font-bold text-sky-400 flex items-center gap-1">
+                            <i class="fa-solid fa-dove"></i> 鳥の目からの振り返り
+                        </div>
+                        <p id="debriefBird" class="text-xs text-slate-300 leading-relaxed">
+                            全社戦略・ガバナンス視点からの影響解説。
+                        </p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-slate-900 border border-purple-500/20 space-y-1">
+                        <div class="text-xs font-bold text-purple-400 flex items-center gap-1">
+                            <i class="fa-solid fa-fish"></i> 魚の目からの振り返り
+                        </div>
+                        <p id="debriefFish" class="text-xs text-slate-300 leading-relaxed">
+                            市場トレンド・競合関係の視点からの影響解説。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-bookmark text-teal-400"></i> 実践で活かせる経営理論キーワード
+                    </div>
+                    <h4 id="theoryTitle" class="text-sm font-bold text-white">埋没費用（サンクコスト）効果とアジャイルガバナンス</h4>
+                    <p id="theoryBody" class="text-xs text-slate-300 leading-relaxed">
+                        経営理論の説明文がここに入ります。
+                    </p>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button onclick="nextScenario()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-sky-600 hover:from-teal-400 hover:to-sky-500 text-white font-bold text-sm shadow-lg shadow-teal-500/20 transition flex items-center gap-2">
+                        <span>次のケースへ進む</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: EXECUTIVE FINAL REPORT CARD -->
+        <section id="finalView" class="hidden space-y-8 animate-fadeIn">
+            <div class="glass-card rounded-2xl p-8 border border-slate-700 bg-gradient-to-br from-navy-900 via-slate-900 to-navy-950 text-center space-y-6 relative overflow-hidden">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest">
+                    <i class="fa-solid fa-award text-amber-400"></i> Executive Assessment Report
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-white">あなたの意思決定スタイル & 経営能力診断</h2>
+                    <p class="text-slate-300 text-sm max-w-2xl mx-auto">
+                        全シナリオを終了しました。3つの視点（虫の目・鳥の目・魚の目）の使い分け結果に基づく評価です。
+                    </p>
+                </div>
+
+                <!-- Rank Card -->
+                <div class="max-w-md mx-auto p-6 rounded-2xl bg-slate-900/90 border border-slate-700 shadow-2xl space-y-4">
+                    <div class="text-xs text-slate-400 font-semibold uppercase tracking-widest">判定ランク</div>
+                    <div id="finalRank" class="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-teal-300 to-emerald-400">
+                        CXO クラス (Sランク)
+                    </div>
+                    <div id="finalScore" class="text-base text-slate-300 font-bold">
+                        総合スコア: <span class="text-teal-400 text-xl">368</span> / 400 pt
+                    </div>
+                </div>
+
+                <!-- Vision Balance Radar & Bias Profile -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-4xl mx-auto pt-4">
+                    <div class="p-5 rounded-xl bg-slate-900/70 border border-emerald-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
+                            <span><i class="fa-solid fa-bug"></i> 虫の目分析力</span>
+                            <span id="scoreBugText">92%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="scoreBugBar" class="h-full bg-emerald-400 rounded-full" style="width: 92%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 pt-1 leading-relaxed">
+                            現場の詳細、不具合・契約の落とし穴を見抜く細部アテンション力。
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-slate-900/70 border border-sky-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-sky-400">
+                            <span><i class="fa-solid fa-dove"></i> 鳥の目分析力</span>
+                            <span id="scoreBirdText">88%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="scoreBirdBar" class="h-full bg-sky-400 rounded-full" style="width: 88%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 pt-1 leading-relaxed">
+                            全社最適・リソース分配・損益影響を客観的に見極めるマクロ構想力。
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-slate-900/70 border border-purple-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-purple-400">
+                            <span><i class="fa-solid fa-fish"></i> 魚の目分析力</span>
+                            <span id="scoreFishText">95%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div id="scoreFishBar" class="h-full bg-purple-400 rounded-full" style="width: 95%"></div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 pt-1 leading-relaxed">
+                            市場潮流・技術競争・時間軸の波を捉えるトレンド洞察力。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Advice for Corporate Leader -->
+                <div class="max-w-2xl mx-auto p-5 rounded-xl bg-slate-900 border border-slate-800 text-left space-y-2">
+                    <h4 class="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-user-tie"></i> リーダーシップ・フィードバックアドバイス
+                    </h4>
+                    <p id="finalAdvice" class="text-xs text-slate-300 leading-relaxed">
+                        アドバイスがここに入ります。
+                    </p>
+                </div>
+
+                <div class="pt-4 flex justify-center gap-4">
+                    <button onclick="resetToHome()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> 最初から再挑戦する
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-navy-950">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                © 2026 Triple Vision Business Simulator. Inspired by <span class="text-slate-400 font-semibold">Image20250915204408.png</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleConceptModal()" class="hover:text-slate-300 transition">思考原典イラスト</button>
+                <span>•</span>
+                <span class="text-teal-400 font-mono">Ver 2.0 Professional</span>
+            </div>
         </div>
     </footer>
 
-    <!-- JavaScript Game Logic -->
+    <!-- CONCEPT MODAL (IMAGE20250915204408) -->
+    <div id="conceptModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fadeIn">
+        <div class="glass-card rounded-2xl max-w-2xl w-full border border-slate-700 bg-slate-900 p-6 space-y-5 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleConceptModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                <div class="w-9 h-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">思考のフレームワーク「虫の目・鳥の目・魚の目」</h3>
+                    <p class="text-xs text-slate-400">ビジネスや人生の複雑な意思決定における3つの大局的観点</p>
+                </div>
+            </div>
+
+            <div class="rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex justify-center">
+                <img src="./image/Image20250915204408.png" alt="虫の目・鳥の目・魚の目" class="max-h-72 object-contain py-2">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div class="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 space-y-1">
+                    <div class="font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-bug"></i> 虫の目 (Bug's Eye)
+                    </div>
+                    <div class="text-emerald-300/90 font-medium">「細かく見る視点」</div>
+                    <p class="text-slate-300 text-[11px] leading-relaxed pt-1">
+                        現場の現実、数字の末尾、個別の課題やエラー原因など、現場の足元をピンポイントかつ精緻に観察するミクロ視点。
+                    </p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-sky-950/40 border border-sky-500/30 space-y-1">
+                    <div class="font-bold text-sky-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-dove"></i> 鳥の目 (Bird's Eye)
+                    </div>
+                    <div class="text-sky-300/90 font-medium">「全体を見る視点」</div>
+                    <p class="text-slate-300 text-[11px] leading-relaxed pt-1">
+                        高所から組織全体、事業構造、損益（P/L）、リソース配置や他部署との関係を俯瞰して整合性を図るマクロ視点。
+                    </p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 space-y-1">
+                    <div class="font-bold text-purple-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-fish"></i> 魚の目 (Fish's Eye)
+                    </div>
+                    <div class="text-purple-300/90 font-medium">「流れを見る視点」</div>
+                    <p class="text-slate-300 text-[11px] leading-relaxed pt-1">
+                        時代の変化、市場・テクノロジーの波、顧客ニーズの変遷や競合の時系列推移など、時代の「潮流」を読むトレンド視点。
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button onclick="toggleConceptModal()" class="px-5 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs transition">
+                    閉じる
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT SIMULATION LOGIC -->
     <script>
-        class SoundFX {
-            constructor() {
-                this.ctx = null;
-                this.muted = false;
-            }
-
-            init() {
-                if (!this.ctx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioContext();
-                }
-            }
-
-            playShoot() {
-                if (this.muted || !this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(850, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.12);
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.12);
-            }
-
-            playExplosion() {
-                if (this.muted || !this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 0.25;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
-                filter.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.25);
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-                noise.start();
-            }
-
-            playInvaderStep(freq = 120) {
-                if (this.muted || !this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.06);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.06);
-            }
-
-            playPowerUp() {
-                if (this.muted || !this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(900, this.ctx.currentTime + 0.25);
-                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
-            }
-
-            playBomb() {
-                if (this.muted || !this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.6);
-                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.6);
-            }
-        }
-
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const CANVAS_WIDTH = 480;
-        const CANVAS_HEIGHT = 360;
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
-
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const highScoreDisplay = document.getElementById('highScoreDisplay');
-        const waveDisplay = document.getElementById('waveDisplay');
-        const livesContainer = document.getElementById('livesContainer');
-        const bombsContainer = document.getElementById('bombsContainer');
-        const overlay = document.getElementById('overlay');
-        const overlayTitle = document.getElementById('overlayTitle');
-        const overlaySub = document.getElementById('overlaySub');
-        const startBtn = document.getElementById('startBtn');
-        const powerupHud = document.getElementById('powerupHud');
-        const soundToggle = document.getElementById('soundToggle');
-        const soundIcon = document.getElementById('soundIcon');
-        const gameContainer = document.getElementById('gameContainer');
-
-        const sound = new SoundFX();
-
-        let gameState = 'START';
-        let score = 0;
-        let highScore = localStorage.getItem('invaders_ex_highscore') || 0;
-        let lives = 3;
-        let bombs = 1;
-        let wave = 1;
-        let combo = 0;
-        let comboTimer = 0;
-
-        highScoreDisplay.textContent = String(highScore).padStart(4, '0');
-
-        const keys = { left: false, right: false, shoot: false };
-
-        // Player
-        const player = {
-            x: CANVAS_WIDTH / 2 - 12,
-            y: CANVAS_HEIGHT - 30,
-            width: 24,
-            height: 14,
-            speed: 3.8,
-            cooldown: 0,
-            shield: false,
-            weaponType: 'NORMAL', // 'NORMAL', 'TRIPLE', 'FAST'
-            weaponTimer: 0,
-            draw() {
-                // Shield Aura
-                if (this.shield) {
-                    ctx.strokeStyle = '#00ffff';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(this.x + 12, this.y + 6, 18, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-                ctx.fillStyle = this.weaponType === 'TRIPLE' ? '#ffcc00' : this.weaponType === 'FAST' ? '#ff00ff' : '#00ff66';
-                ctx.fillRect(this.x + 10, this.y - 4, 4, 4);
-                ctx.fillRect(this.x + 8, this.y, 8, 4);
-                ctx.fillRect(this.x + 2, this.y + 4, 20, 4);
-                ctx.fillRect(this.x, this.y + 8, 24, 6);
+        // Real-world serious business scenarios
+        const SCENARIOS = [
+            {
+                id: 1,
+                title: "新規AI SaaS製品のリリース直前に脆弱性とコード崩壊が発覚",
+                category: "製品開発・ガバナンス危機",
+                industry: "IT / SaaS業界",
+                difficulty: "★★★★☆",
+                keyKPI: "信頼 & セキュリティ",
+                description: "月額制SaaSプロダクト「SmartMetrics AI」のプレスリリース・正式公開が3日後に迫っています。大口クライアント10社との仮契約が成立しており、延期すれば解約リスクがあります。しかし現場の緊急監査によりセキュリティホールとデータベースの応答低下が判明しました。",
+                perspectives: {
+                    bug: {
+                        icon: "fa-bug",
+                        title: "虫の目 (現場・技術ログデータ)",
+                        items: [
+                            { label: "脆弱性スコア", val: "CVE-2026-9902 (CVSS 8.8 深刻)", alert: true },
+                            { label: "現場エンジニア所感", val: "「突貫工事によるスパゲティコード。根本修正には最少で10日が必要」" },
+                            { label: "APIレイテンシ", val: "通常 120ms → 負荷時 3,800ms（タイムアウト多発）" },
+                            { label: "契約条項の精査", val: "「サービス保証SLA 99.9%未達時は損害賠償金の発生規定あり」" }
+                        ],
+                        content: "現場のソースコードとセキュリティ監査ログを分析すると、認可制御の漏れがあり、他社データが閲覧されるリスクが存在します。現場チームは徹夜が続いており疲労が限界に達しています。"
+                    },
+                    bird: {
+                        icon: "fa-dove",
+                        title: "鳥の目 (全社戦略・財務構造)",
+                        items: [
+                            { label: "今期全社売上目標", val: "達成率 82%（本製品成功が達成の必須条件）" },
+                            { label: "全社開発リソース", val: "別案件の主力メンバー5名を即時投入可能（他案件が3日遅延）" },
+                            { label: "広報・PRの進捗", val: "主要経済誌・WEBメディア20社にリリース打診済み" },
+                            { label: "全社ブランド価値", val: "「セキュリティ最優先」を社訓に掲げている" }
+                        ],
+                        content: "全社P/Lの視点では、本製品の売上未達は全社業績の赤字転落を意味します。しかし一度セキュリティ事故を起こせば、会社全体の看板である企業信頼が失墜し、既存全事業へ致命的打撃を与えます。"
+                    },
+                    fish: {
+                        icon: "fa-fish",
+                        title: "魚の目 (市場トレンド・競合の動き)",
+                        items: [
+                            { label: "競合社Xの動向", val: "2週間後に同等機能を備えた新サービスを発表予定" },
+                            { label: "市場トレンド", val: "個人情報保護法改正により、法人顧客のセキュリティ要求が急速に厳格化" },
+                            { label: "顧客購入意欲の波", val: "今期予算執行のピーク（今月を逃すと来期検討に回される）" }
+                        ],
+                        content: "市場は参入障壁が低く、ファーストムーバー・アドバンテージ（先発優位性）が極めて重要です。しかし市場トレンドとして、セキュリティ問題を起こした他社A社は株価が40%下落した前例があります。"
+                    }
+                },
+                options: [
+                    {
+                        letter: "A",
+                        title: "公開を2週間延期し、全社から助っ人を集めて根本修正・セキュリティ強化を徹底する",
+                        impact: { growth: 65, trust: 95, risk: 90, morale: 75 },
+                        score: 92,
+                        outcome: "S判定: 最高度の決断",
+                        outcomeDesc: "短期的な公開延期により営業機会を一部逃したものの、セキュリティと品質を完璧に担保。発表後の障害発生率は0%となり、顧客から高い信頼を獲得しました。",
+                        debriefBug: "現場のエンジニアは他部署からの助っ人により負荷が分散され、根本的なリファクタリングに成功しました。",
+                        debriefBird: "広報の調整コストが発生したものの、社訓である「セキュリティ最優先」を実証し、全社ガバナンスが強化されました。",
+                        debriefFish: "競合X社に先手を取られたものの、X社が初期不具合で炎上したため、結果的に高品質な自社サービスに乗り換える顧客が続出しました。",
+                        theoryTitle: "「品質のトレードオフ（Quality Triangle）」と「レピュテーション・リスク管理」",
+                        theoryBody: "納期・コスト・品質の3要素において、特にセキュリティが関わる場合、品質を犠牲にしたスピードは致命的なレピュテーションリスクを引き起こします。一時的な延期コストは、将来の損害賠償や解約コスト（サンクコスト）と比較して圧倒的に低くなります。"
+                    },
+                    {
+                        letter: "B",
+                        title: "予定通り公開し、脆弱性部分は機能を制限した「ベータ版」としてリリースする",
+                        impact: { growth: 85, trust: 75, risk: 70, morale: 80 },
+                        score: 80,
+                        outcome: "B判定: 現実的だがリスク残存",
+                        outcomeDesc: "リリース日を守りつつ致命的機能を一時塞ぐことで、先発優位性を維持。しかし顧客からは「期待した機能が使えない」との不満が一部残りました。",
+                        debriefBug: "現場は急遽機能マスク処理（フィーチャーフラグ）を行い、大火傷を回避しました。",
+                        debriefBird: "今期の売上見込みは維持されましたが、ベータ版の対応期間中、開発リソースが拘束されました。",
+                        debriefFish: "競合より先に市場参入できたため認知度は確保されましたが、完全版を望むエンタープライズ顧客の契約が保留になりました。",
+                        theoryTitle: "「フィーチャー・トグル（Feature Toggling）」と「MVP（実用最小限の製品）戦略」",
+                        theoryBody: "危険な機能をリリースせずマスクする手法は実用的なリスク回避手段です。ただし顧客の期待値調整（Expectation Management）に失敗するとブランド価値を損なうため、コミュニケーションの透明性が鍵となります。"
+                    },
+                    {
+                        letter: "C",
+                        title: "脆弱性を隠蔽し、リリース後にサイレント修正パッチを当てる",
+                        impact: { growth: 95, trust: 20, risk: 10, morale: 30 },
+                        score: 30,
+                        outcome: "D判定: 致命的失敗",
+                        outcomeDesc: "公開初日に外部ホワイトハッカーにより脆弱性がX（Twitter）で暴露され大炎上。全契約が破棄され、プレスリリース撤回・社長謝罪会見に追い込まれました。",
+                        debriefBug: "現場のエンジニアは隠蔽の指示に反発し、キーマン3名が即座に退職届を提出しました。",
+                        debriefBird: "会社全体の株価が30%下落し、既存事業の顧客からも解約が相次ぎました。",
+                        debriefFish: "市場での信頼は完全にゼロになり、同カテゴリーからの撤退を余儀なくされました。",
+                        theoryTitle: "「粉飾・隠蔽の罠（Normalizing Deviance）」と「コンプライアンス破綻」",
+                        theoryBody: "目先の成果のためにリスクを隠す行為は、発覚した際の破滅的損害（破滅的テイルリスク）を招きます。ガバナンスなきスピード追求は組織の崩壊を招きます。"
+                    },
+                    {
+                        letter: "D",
+                        title: "プロジェクト自体を無期限凍結し、他事業へリソースを全振替する",
+                        impact: { growth: 40, trust: 60, risk: 85, morale: 45 },
+                        score: 55,
+                        outcome: "C判定: 過度な回避思考",
+                        outcomeDesc: "セキュリティ事故は防げたものの、これまで投じた5,000万円の開発費がすべて泡となり、市場でのシェア獲得の機会を完全に喪失しました。",
+                        debriefBug: "これまで必死に開発してきた現場のモチベーションはどん底に落ちました。",
+                        debriefBird: "全社目標の未達が確定し、株主からの批判を受けました。",
+                        debriefFish: "競合他社が市場を独占し、参入のチャンスが永久に失われました。",
+                        theoryTitle: "「損失回避バイアス（Loss Aversion）」と「サンクコストの誤謬」",
+                        theoryBody: "リスクを恐れるあまり事業自体を棄却するのは、適切なリスクテイク（リスクマネジメント）ではなく「機会損失（Opportunity Loss）」を生み出します。"
+                    }
+                ]
             },
-            update() {
-                if (keys.left && this.x > 8) this.x -= this.speed;
-                if (keys.right && this.x < CANVAS_WIDTH - this.width - 8) this.x += this.speed;
-                if (this.cooldown > 0) this.cooldown--;
-                if (this.weaponTimer > 0) {
-                    this.weaponTimer--;
-                    if (this.weaponTimer <= 0) this.weaponType = 'NORMAL';
-                }
+            {
+                id: 2,
+                title: "老舗EC企業の売上急減とレガシーシステムの限界",
+                category: "事業再生・DX転換",
+                industry: "小売・Eコマース",
+                difficulty: "★★★☆☆",
+                keyKPI: "事業成長 & 組織変革",
+                description: "創業20年の老舗通販企業「メディオモール」は、ここ2年で前年比売上-25%と急減。若年層顧客の離脱が著しく、モバイルアプリは2015年設計のまま更新が止まっています。現場からは「システム刷新」の声が上がる一方、経営陣は「コスト削減」を命じています。",
+                perspectives: {
+                    bug: {
+                        icon: "fa-bug",
+                        title: "虫の目 (現場運用・顧客行動ログ)",
+                        items: [
+                            { label: "スマホ決済離脱率", val: "決済画面での離脱率 68%（他社平均 22%）" },
+                            { label: "サイト表示速度", val: "トップページ読み込み 6.2秒（致命的遅延）" },
+                            { label: "カスタマーサポート件数", val: "「パスワード再発行がわかりにくい」問い合わせが月1,200件" },
+                            { label: "ベテラン社員の声", val: "「昔からの固定客（60代以上）は今の画面に慣れている。変えないでほしい」" }
+                        ],
+                        content: "現場のデータ解析により、スマホユーザーのカート離脱が最大の売上漏れ原因と判明。さらにバックエンドシステムがオンプレミス古参サーバーで保守費用が年間8,000万円高騰しています。"
+                    },
+                    bird: {
+                        icon: "fa-dove",
+                        title: "鳥の目 (財務・全社組織体制)",
+                        items: [
+                            { label: "手元キャッシュ残高", val: "12か月分（システム全面刷新コストは手元資金の35%）" },
+                            { label: "部署間セクショナリズム", val: "店舗部門とEC部門で売上を奪い合っており協力関係ゼロ" },
+                            { label: "IT人材比率", val: "全社員200名中、エンジニアはわずか3名（業務の9割を外注）" }
+                        ],
+                        content: "財務的には刷新資金は確保できますが、社内政治（店舗派 vs EC派）が深刻。全社構造として、売上の柱を「店舗」から「OMO（店舗EC統合）」へシフトするグランドデザインが必要です。"
+                    },
+                    fish: {
+                        icon: "fa-fish",
+                        title: "魚の目 (業界トレンド・消費者構造変化)",
+                        items: [
+                            { label: "EC市場の潮流", val: "ソーシャルコマース（Instagram/TikTok連携）が年30%成長" },
+                            { label: "顧客層の年齢シフト", val: "主力の50〜60代顧客の購買単価が毎年8%ずつ減少傾向" },
+                            { label: "競合ECのプラットフォーム", val: "ヘッドレスコマース・クラウドSaas移行率が80%を突入" }
+                        ],
+                        content: "消費者の購買行動は「検索して買う」から「SNS動画を見て即時アプリ決済する」へ完全にシフト。従来のWeb型モールは急速に陳腐化しています。"
+                    }
+                },
+                options: [
+                    {
+                        letter: "A",
+                        title: "クラウド型SaaS基盤へ全面刷新し、アプリ中心のOMO（店舗・EC統合）モデルへ舵を切る",
+                        impact: { growth: 95, trust: 85, risk: 75, morale: 90 },
+                        score: 95,
+                        outcome: "S判定: 未来を切り拓く大改革",
+                        outcomeDesc: "初期導入コストと社内摩擦はあったものの、カート離脱率が68%→18%へ急減。若年層の新規獲得と店舗併用率が大幅向上し、売上はV字回復（前年比+40%）しました。",
+                        debriefBug: "決済UIのモダン化により、離脱率と問い合わせ数が激減し現場サポートの負荷が半減しました。",
+                        debriefBird: "店舗部門とEC部門の評価制度を統合（OMO共通インセンティブ）したことで、全社的一体感が生まれました。",
+                        debriefFish: "業界のSNSコマースの波に乗り、TikTok経由の売上が全体の25%を占める新基柱に成長しました。",
+                        theoryTitle: "「イノベーションのジレンマ」と「デジタルトランスフォーメーション (DX)」",
+                        theoryBody: "過去の成功体験（シニア向け既存システム）に固執すると壊滅的衰退（イノベーションのジレンマ）に直面します。魚の目でトレンドの不可逆的変化を察知し、鳥の目で全社構造（評価制度）を同時に変革することがDX成功の要諦です。"
+                    },
+                    {
+                        letter: "B",
+                        title: "既存システムは残し、スマホ決済UIだけを部分改修（パッチ対応）する",
+                        impact: { growth: 60, trust: 65, risk: 85, morale: 60 },
+                        score: 70,
+                        outcome: "C判定: 延命措置にとどまる",
+                        outcomeDesc: "決済離脱は一時的に改善されたものの、基盤サーバーの老朽化による障害が多発。競合のスピード感に追いつけず、売上減少を止めるには至りませんでした。",
+                        debriefBug: "パッチ当ての繰り返しにより、システムコードがさらに複雑化（技術的負債の増大）しました。",
+                        debriefBird: "年間8,000万円の保守費が残り続け、将来投資の資金を圧迫しました。",
+                        debriefFish: "顧客の離脱トレンドを根本から止めることはできませんでした。",
+                        theoryTitle: "「技術的負債（Technical Debt）」の雪だるま効果",
+                        theoryBody: "根本的な構造改革を先送りして表面上の補修を重ねると、保守運用コストが増大し、組織の変革エネルギーを奪っていきます。"
+                    },
+                    {
+                        letter: "C",
+                        title: "EC事業を縮小し、リアルの実店舗販売に回帰・集中する",
+                        impact: { growth: 30, trust: 50, risk: 60, morale: 40 },
+                        score: 40,
+                        outcome: "D判定: 時代逆行の失敗",
+                        outcomeDesc: "店舗の固定費負担が重く、EC市場からの撤退によって売上はさらに半減。破綻の危機に瀕しました。",
+                        debriefBug: "EC顧客データがすべて無駄になりました。",
+                        debriefBird: "店舗の賃料と人件費が重くのしかかり、赤字幅が拡大しました。",
+                        debriefFish: "EC化率が高まる市場トレンドに真っ向から逆行しました。",
+                        theoryTitle: "「市場適応力（Strategic Agility）」の欠如",
+                        theoryBody: "マクロ環境のトレンド（魚の目）を無視した判断は、どれだけ現場（虫の目）で頑張っても勝利できない戦術的失敗を招きます。"
+                    },
+                    {
+                        letter: "D",
+                        title: "大手ECモール（Amazon/楽天等）へ全面出店し、自社ECサイトは閉鎖する",
+                        impact: { growth: 70, trust: 50, risk: 65, morale: 50 },
+                        score: 75,
+                        outcome: "B判定: 一定の利益確保だがブランド喪失",
+                        outcomeDesc: "自社システム維持費はなくなり黒字化したが、プラットフォーム手数料の増加と顧客データの取得不能により、自社ブランドのアイデンティティが消失しました。",
+                        debriefBug: "自社サイトの運用作業はなくなり業務は効率化しました。",
+                        debriefBird: "プラットフォーム依存度100%となり、相手の規約変更ひとつで事業が左右されるリスクを抱えました。",
+                        debriefFish: "自社独自のD2C（Direct to Consumer）トレンドから脱落しました。",
+                        theoryTitle: "「プラットフォーム依存リスク」と「D2C戦略」",
+                        theoryBody: "他社プラットフォーム依存は初期コストを抑えられますが、顧客データ資産と価格決定権を失うトレードオフが存在します。"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "海外市場進出における現地化とガバナンスの衝突",
+                category: "グローバル戦略・アライアンス",
+                industry: "製造・ヘルスケア",
+                difficulty: "★★★★☆",
+                keyKPI: "市場成長 & ブランド信頼",
+                description: "医療機器メーカー「メディカルクロス」は、東南アジア市場への進出を計画中。現地大手代理店「AsiaDist Inc.」から独占販売権契約を提案されていますが、現地での販売価格を日本の半額に設定するよう強く要求されています。",
+                perspectives: {
+                    bug: {
+                        icon: "fa-bug",
+                        title: "虫の目 (契約条項・製造原価データ)",
+                        items: [
+                            { label: "製品製造原価", val: "1台あたり 12,000円（半額販売だと粗利率わずか 8%）" },
+                            { label: "契約条項の罠", val: "「3年間の独占権。最低販売台数未達時の解除条項なし」" },
+                            { label: "現地薬事承認", val: "現地の許認可申請に通常18か月が必要（AsiaDist社を通せば6か月に短縮）" }
+                        ],
+                        content: "契約詳細を精査すると、価格設定権を相手に握られ、かつ台数ノルマがない不利な条項が含まれています。また原価ギリギリでの販売は日本国内への逆輸入（パラレル輸入）を誘発するリスクがあります。"
+                    },
+                    bird: {
+                        icon: "fa-dove",
+                        title: "鳥の目 (全社ブランド価値・グローバル価格体系)",
+                        items: [
+                            { label: "欧米市場での販売価格", val: "1台あたり 50,000円（高価格・高品質ブランドを確立）" },
+                            { label: "全社事業計画", val: "3年後に海外売上比率を15%→40%へ引き上げる全社目標" },
+                            { label: "品質保証体制", val: "現地での故障・トラブル時のアフターサポート責任の所在が曖昧" }
+                        ],
+                        content: "ブランド鳥の目では、東南アジアでの極端な安売りが欧米や日本の顧客に知られた場合、ブランド価値（プレミアムイメージ）が既存主力市場で毀損するリスクがあります。"
+                    },
+                    fish: {
+                        icon: "fa-fish",
+                        title: "魚の目 (新興国経済成長・競合参入スピード)",
+                        items: [
+                            { label: "東南アジア医療市場成長率", val: "年 14.5%（世界最高の成長トレンド）" },
+                            { label: "中国系競合メーカーの動き", val: "低価格モデルで急速にシェア獲得中（1〜2年で市場が飽和する予測）" },
+                            { label: "中間層の拡大予測", val: "5年後に高価格帯を購入可能な中間・富裕層が3倍に拡大" }
+                        ],
+                        content: "参入スピードを逃すと中国競合に市場を独占されます。現在は安価モデルが中心ですが、5年後には高品質モデルへのシフトが確実視される成長市場です。"
+                    }
+                },
+                options: [
+                    {
+                        letter: "A",
+                        title: "契約条項を修正交渉（販売ノルマ設定＋逆輸入防止）し、廉価版仕様モデルを共同開発して進出する",
+                        impact: { growth: 90, trust: 90, risk: 85, morale: 85 },
+                        score: 96,
+                        outcome: "S判定: グローバル戦略の模範解答",
+                        outcomeDesc: "既存高級ブランドを守りつつ、現地向け廉価仕様モデル（コスト削減版）を投入。契約の防衛条項によりリスクを遮断し、3年で現地シェアNo.2を獲得しました。",
+                        debriefBug: "製造原価を抑えた専用モデル開発により、粗利率28%を確保。契約修正で最低販売量義務を盛り込みました。",
+                        debriefBird: "既存モデルのプレミアム価格とブランド価値は無傷で保たれました。",
+                        debriefFish: "参入スピードを保ちつつ、将来の中間層拡大に伴い高級モデルへアップセルするロードマップを確立しました。",
+                        theoryTitle: "「デュアル・ブランド戦略」と「グローバル契約ガバナンス」",
+                        theoryBody: "新興国参入において、旗艦ブランドの価値を守りながら現地専用モデル（カストマイズ）を展開する手法はグローバル展開の王道です。魚の目の将来トレンドと虫の目の契約防衛の融合が成功要因です。"
+                    },
+                    {
+                        letter: "B",
+                        title: "AsiaDist社の要求通りの条件・現行品半額で即時独占契約を結ぶ",
+                        impact: { growth: 60, trust: 40, risk: 30, morale: 50 },
+                        score: 50,
+                        outcome: "D判定: 代理店に主導権を握られる",
+                        outcomeDesc: "初年度の出荷数は伸びたものの、粗利が出ず赤字。さらに日本国内への逆輸入が横行し、国内正規ルートの売上が激減しました。",
+                        debriefBug: "契約解除ができず、3年間不利な条件で拘束され続けました。",
+                        debriefBird: "「日本で買うと損をする」との噂が広まり、国内顧客の不信感を招きました。",
+                        debriefFish: "現地代理店が競合他社製品に乗り換えた際、何も抵抗できませんでした。",
+                        theoryTitle: "「ホールドアップ問題（Hold-up Problem）」",
+                        theoryBody: "特定パートナーに過度な独占権と価格決定権を与えると、後から不当な要求を飲まされ続ける罠に陥ります。"
+                    },
+                    {
+                        letter: "C",
+                        title: "代理店を使わず、自社現地法人を立ち上げて定価販売でじっくり参入する",
+                        impact: { growth: 45, trust: 80, risk: 70, morale: 60 },
+                        score: 65,
+                        outcome: "C判定: スピード負け",
+                        outcomeDesc: "許認可取得と拠点開設に2年半を要し、その間に中国系競合メーカーが市場シェア80%を独占。参入機会を逸しました。",
+                        debriefBug: "現地薬事承認の手続きに膨大な時間と労力が消えました。",
+                        debriefBird: "現地法人の固定費負担が重く、赤字が長期化しました。",
+                        debriefFish: "市場の成長スピード（魚の目）に自社の実行スピードが追いつきませんでした。",
+                        theoryTitle: "「タイム・トゥ・マーケット（Time-to-Market）」の重要性",
+                        theoryBody: "新興市場では自前主義（オーガニック成長）のスピード遅延が致命的になります。アライアンス（提携）の活用が不可欠です。"
+                    },
+                    {
+                        letter: "D",
+                        title: "リスクが高いため東南アジア進出は見送り、欧米市場の深耕に専念する",
+                        impact: { growth: 55, trust: 75, risk: 90, morale: 55 },
+                        score: 60,
+                        outcome: "C判定: 安全志向だが成長機会喪失",
+                        outcomeDesc: "欧米での売上は維持できたものの、世界最大の成長地域を放棄したことで、5年後のグローバルシェアランキングで大幅に後退しました。",
+                        debriefBug: "安全な選択でしたが現場の海外事業部メンバーのモチベーションは低下しました。",
+                        debriefBird: "全社事業計画の「海外売上比率40%」が達成不能になりました。",
+                        debriefFish: "10年後のグローバル医療市場の重心シフトに乗ることができませんでした。",
+                        theoryTitle: "「ポートフォリオ・リスクマネジメント」",
+                        theoryBody: "成熟市場（欧米）への偏重は短期的な安全をもたらしますが、長期的には新興国で成長した新鋭競合に本陣を脅かされるリスクを孕みます。"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "組織急拡大によるミドルマネジメント崩壊と離職の連鎖",
+                category: "組織改革・ピープルマネジメント",
+                industry: "コンサルティング / サービス",
+                difficulty: "★★★☆☆",
+                keyKPI: "チーム健全度 & 組織生産性",
+                description: "社員数が1年で50名→180名へ急拡大した成長企業「NextWave」。売上は好調ですが、現場のミドルマネージャー層（中堅社員）の疲弊が限界に達し、直近3か月でキーマン6名が相次いで離職。「指示が朝令暮改」「若手の育成が追いつかない」と悲鳴が上がっています。",
+                perspectives: {
+                    bug: {
+                        icon: "fa-bug",
+                        title: "虫の目 (退職面談ログ・残業時間データ)",
+                        items: [
+                            { label: "ミドル層の平均月間残業", val: "78時間（過労死ライン直前）" },
+                            { label: "退職理由アンケート上位", val: "1位: 評価基準の不透明さ、2位: 経営陣からの丸投げ、3位: 育成時間の無さ" },
+                            { label: "1on1実施率", val: "全社目標 100% に対し、実際は 14%（形骸化）" },
+                            { label: "新入社員の離職率", val: "入社半年以内の離職率 32%（過去最高）" }
+                        ],
+                        content: "現場のデータは深刻な組織疲弊を示しています。経営陣からの成果圧力がそのままミドルマネージャーに集中し、彼らが若手の教育と経営陣への報告の挟み撃ちになっています。"
+                    },
+                    bird: {
+                        icon: "fa-dove",
+                        title: "鳥の目 (組織構造・評価制度・採用コスト)",
+                        items: [
+                            { label: "組織のスパン・オブ・コントロール", val: "課長1人あたり部下18名（適正値は5〜7名）" },
+                            { label: "中途採用獲得単価 (CAC)", val: "1名あたり 250万円（離職による採用損失 年間4,500万円）" },
+                            { label: "全社KPI構造", val: "「売上・件数」のみを評価。人材育成や組織貢献の評価配分 0%" }
+                        ],
+                        content: "鳥の目の構造分析により、組織構造（階層設計）の欠如と評価制度の歪みが根本要因と発覚。採用にいくら投資しても、バケツの底が抜けた状態でコストが流出しています。"
+                    },
+                    fish: {
+                        icon: "fa-fish",
+                        title: "魚の目 (労働市場トレンド・若手の価値観変化)",
+                        items: [
+                            { label: "IT/コンサル労働市場", val: "空前の売り手市場。優秀な中堅層はスカウトが殺到中" },
+                            { label: "若手求職者の企業選択軸", val: "「成長機会」よりも「心理的安全性の高さ」と「ワークライフハック」を重視" },
+                            { label: "競合他社の働き方改革", val: "同業B社が「フルリモート＋フレックス＋メンター制度」で優秀層を全吸い上げ" }
+                        ],
+                        content: "時代の潮流（魚の目）として、詰め込み型の急成長モデルは求職者・中堅層から敬遠される時代へ変化。組織文化（カルチャー）の現代化が不可避です。"
+                    }
+                },
+                options: [
+                    {
+                        letter: "A",
+                        title: "新規採用を一時抑制し、管理職の統率範囲再設計（ピラミッド化）とピープルマネジメント評価を導入する",
+                        impact: { growth: 75, trust: 95, risk: 90, morale: 98 },
+                        score: 95,
+                        outcome: "S判定: 持続的成長基盤の構築",
+                        outcomeDesc: "組織構造の適正化によりミドル層の残業が78h→24hへ減少し、離職率が劇的に改善（32%→4%）。社員のエンゲージメントが高まり、結果として生産性が向上しました。",
+                        debriefBug: "ミドルマネージャーの負担が劇的に軽減し、質の高い1on1が復活して若手の成長が加速しました。",
+                        debriefBird: "バケツの底が塞がり、採用コストが年間3,000万円削減されました。売上数値以外の「育成貢献」を評価したことで良好なカルチャーが定着しました。",
+                        debriefFish: "「心理的安全性が高く成長できる会社」として口コミ評判が高まり、優秀な中途人材が自然と集まる強固な採用ブランディングが確立しました。",
+                        theoryTitle: "「スパン・オブ・コントロール（統率範囲の原則）」と「コッターの組織変革論」",
+                        theoryBody: "1人の管理職が見られる適正人数は5〜7名です。成長局面で構造改革を怠ると組織は機能不全を起こします。短期的売上ペースを少し緩めてでも組織基盤（バケツの底）を固める決断が、長期的成功を生みます。"
+                    },
+                    {
+                        letter: "B",
+                        title: "離職補填のため採用チームを倍増し、ハイペース採用をさらに加速させる",
+                        impact: { growth: 60, trust: 30, risk: 20, morale: 20 },
+                        score: 35,
+                        outcome: "D判定: 組織のデススパイラル",
+                        outcomeDesc: "採用数は増えたものの離職率がさらに悪化し、社内文化が完全に崩壊。中堅層がほぼ全員離職し、ノウハウが雲散霧消しました。",
+                        debriefBug: "現場は常に新人研修に追われ、本来の案件業務が滞りました。",
+                        debriefBird: "採用コストが暴増し、営業利益を強烈に圧迫しました。",
+                        debriefFish: "「ブラック企業」としてSNSで炎上し、求人応募が途絶えました。",
+                        theoryTitle: "「ブルックスの法則」と「組織デットスパイラル」",
+                        theoryBody: "遅れているプロジェクトや荒れている組織に単に人を投入しても、コミュニケーションコストが増大してますます悪化します。"
+                    },
+                    {
+                        letter: "C",
+                        title: "ミドル層の給与を一律20%アップして引き留めを図る",
+                        impact: { growth: 70, trust: 60, risk: 65, morale: 55 },
+                        score: 60,
+                        outcome: "C判定: 根本解決にならず",
+                        outcomeDesc: "一時的な退職保留効果はあったものの、業務過多の根本原因が解決していないため、半年後に再び離職が再発しました。",
+                        debriefBug: "現場の労働環境や残業時間は1分も減りませんでした。",
+                        debriefBird: "固定人件費が高騰し、財務の柔軟性が損なわれました。",
+                        debriefFish: "金銭的報酬（衛生要因）だけでは、現代の働く人のモチベーション（動機づけ要因）を満たせませんでした。",
+                        theoryTitle: "ハーズバーグの「動機づけ・衛生理論」",
+                        theoryBody: "給与や職場環境（衛生要因）の改善は「不満」を減らすだけであり、仕事のやりがいや成長・達成感（動機づけ要因）がなければ離職は防げません。"
+                    },
+                    {
+                        letter: "D",
+                        title: "全社を完全フルリモート・自由シフト制にし、管理コストをゼロにする",
+                        impact: { growth: 50, trust: 50, risk: 40, morale: 50 },
+                        score: 50,
+                        outcome: "D判定: 孤立と無秩序の発生",
+                        outcomeDesc: "若手社員が放り出されて孤立し、スキルアップできずに早期離職。社内コミュニケーションが完全に途絶しました。",
+                        debriefBug: "テキストコミュニケーションの行き違いからプロジェクトの炎上が相次ぎました。",
+                        debriefBird: "全社的な方針の一体感がなくなり、各個人がばらばらの方向へ動く雑多集団と化しました。",
+                        debriefFish: "準備なきフルリモート化は、組織カルチャーの消失を招きました。",
+                        theoryTitle: "「組織のエンゲージメント」と「遠隔マネジメントの前提条件」",
+                        theoryBody: "制度の変更（リモート化等）は、強固な評価基準とカルチャーが定着している組織で初めて機能します。"
+                    }
+                ]
             }
-        };
-
-        // Power-ups Drops
-        let powerups = [];
-        const POWERUP_TYPES = [
-            { type: 'TRIPLE', symbol: '3W', color: '#ffcc00', label: '3WAY SHOT' },
-            { type: 'FAST', symbol: 'FR', color: '#ff00ff', label: 'FAST FIRE' },
-            { type: 'SHIELD', symbol: 'SH', color: '#00ffff', label: 'SHIELD' },
-            { type: 'BOMB', symbol: 'BM', color: '#ff3333', label: '+1 BOMB' }
         ];
 
-        // Bullets & Particles
-        let playerBullets = [];
-        let invaderBullets = [];
-        let particles = [];
-        let floatingTexts = [];
-        let bunkers = [];
-
-        // UFO
-        let ufo = null;
-        let ufoTimer = 0;
-
-        // Boss System
-        let boss = null;
-
-        // Invader System
-        const INVADER_ROWS = 5;
-        const INVADER_COLS = 10;
-        let invaders = [];
-        let invaderDirection = 1;
-        let invaderMoveTimer = 0;
-        let invaderMoveInterval = 40;
-        let invaderStepIndex = 0;
-        const stepPitch = [120, 100, 90, 80];
-
-        const invaderSprites = {
-            top: [[0,0,1,1,0,0],[0,1,1,1,1,0],[1,1,1,1,1,1],[1,1,0,0,1,1],[1,0,1,1,0,1]],
-            mid: [[0,1,0,0,1,0],[1,0,1,1,0,1],[1,1,1,1,1,1],[1,1,0,1,1,1],[0,1,0,0,1,0]],
-            bot: [[0,0,1,1,0,0],[0,1,1,1,1,0],[1,1,1,1,1,1],[0,1,0,0,1,0],[1,0,1,1,0,1]]
+        // Global Game State
+        let currentScenarioIndex = 0;
+        let activePerspective = 'bug'; // 'bug', 'bird', 'fish'
+        let userScores = {
+            bug: 0,
+            bird: 0,
+            fish: 0,
+            total: 0,
+            scenariosCompleted: 0
         };
 
-        function triggerScreenShake() {
-            gameContainer.classList.add('shaking');
-            setTimeout(() => gameContainer.classList.remove('shaking'), 200);
+        // DOM Loaded Init
+        window.addEventListener('DOMContentLoaded', () => {
+            renderScenarioGrid();
+        });
+
+        // Toggle Concept Modal
+        function toggleConceptModal() {
+            const modal = document.getElementById('conceptModal');
+            modal.classList.toggle('hidden');
         }
 
-        function createFloatingText(x, y, text, color = '#ffffff') {
-            floatingTexts.push({ x, y, text, color, life: 30, vy: -1 });
+        // Reset to Home View
+        function resetToHome() {
+            currentScenarioIndex = 0;
+            userScores = { bug: 0, bird: 0, fish: 0, total: 0, scenariosCompleted: 0 };
+            document.getElementById('homeView').classList.remove('hidden');
+            document.getElementById('simView').classList.add('hidden');
+            document.getElementById('reviewView').classList.add('hidden');
+            document.getElementById('finalView').classList.add('hidden');
+            document.getElementById('headerProgress').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function createInvaders() {
-            invaders = [];
-            boss = null;
+        // Render Home Scenario Cards
+        function renderScenarioGrid() {
+            const container = document.getElementById('scenarioSelectGrid');
+            container.innerHTML = SCENARIOS.map((sc, idx) => `
+                <div onclick="startScenario(${idx})" class="glass-card glass-card-hover rounded-2xl p-6 border border-slate-800 bg-slate-900/80 cursor-pointer flex flex-col justify-between space-y-4 group">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="px-2.5 py-0.5 rounded-full bg-teal-950 border border-teal-500/30 text-teal-300 font-bold">CASE 0${sc.id}</span>
+                            <span class="text-slate-400 font-medium"><i class="fa-solid fa-building text-slate-500 mr-1"></i>${sc.industry}</span>
+                        </div>
+                        <h4 class="text-base font-bold text-white group-hover:text-teal-300 transition line-clamp-2">
+                            ${sc.title}
+                        </h4>
+                        <p class="text-xs text-slate-400 line-clamp-3 leading-relaxed">
+                            ${sc.description}
+                        </p>
+                    </div>
 
-            // Check for Boss Wave (Every 3 Waves)
-            if (wave % 3 === 0) {
-                boss = {
-                    x: CANVAS_WIDTH / 2 - 30,
-                    y: 40,
-                    width: 60,
-                    height: 35,
-                    hp: 40 + wave * 10,
-                    maxHp: 40 + wave * 10,
-                    direction: 1,
-                    speed: 1.5,
-                    shootTimer: 0
-                };
-                return;
+                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                        <span class="text-amber-400 font-semibold">${sc.difficulty}</span>
+                        <span class="text-teal-400 font-bold flex items-center gap-1 group-hover:translate-x-1 transition">
+                            ケースを開始 <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Start Simulation from Home
+        function startSimulation() {
+            startScenario(0);
+        }
+
+        // Start Specific Scenario
+        function startScenario(index) {
+            currentScenarioIndex = index;
+            activePerspective = 'bug';
+
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('simView').classList.remove('hidden');
+            document.getElementById('reviewView').classList.add('hidden');
+            document.getElementById('finalView').classList.add('hidden');
+
+            const progressElem = document.getElementById('headerProgress');
+            progressElem.classList.remove('hidden');
+            document.getElementById('currentStepText').innerText = `${currentScenarioIndex + 1} / ${SCENARIOS.length}`;
+
+            loadScenarioData(SCENARIOS[currentScenarioIndex]);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load Scenario UI Data
+        function loadScenarioData(sc) {
+            document.getElementById('caseCategoryTag').innerText = `ケース ${sc.id} / ${SCENARIOS.length} • ${sc.category}`;
+            document.getElementById('caseIndustryTag').innerText = sc.industry;
+            document.getElementById('caseTitle').innerText = sc.title;
+            document.getElementById('caseDifficulty').innerText = sc.difficulty;
+            document.getElementById('caseKeyKPI').innerText = sc.keyKPI;
+            document.getElementById('caseDescription').innerText = sc.description;
+
+            // Render Perspective Tabs & Content
+            switchPerspective('bug');
+
+            // Render Options
+            const optsContainer = document.getElementById('optionsContainer');
+            optsContainer.innerHTML = sc.options.map((opt, oIdx) => `
+                <button onclick="selectOption(${oIdx})" class="glass-card glass-card-hover rounded-xl p-5 border border-slate-800 bg-slate-950/90 text-left flex items-start gap-4 group transition hover:border-teal-500/50">
+                    <div class="w-9 h-9 rounded-xl bg-slate-800 group-hover:bg-teal-600 text-slate-300 group-hover:text-white font-extrabold text-base flex items-center justify-center shrink-0 border border-slate-700 transition">
+                        ${opt.letter}
+                    </div>
+                    <div class="space-y-1.5 flex-1">
+                        <h4 class="text-xs sm:text-sm font-bold text-white group-hover:text-teal-300 transition leading-snug">
+                            ${opt.title}
+                        </h4>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        // Switch Perspective Tab (Bug, Bird, Fish)
+        function switchPerspective(type) {
+            activePerspective = type;
+
+            const tabBug = document.getElementById('tabBug');
+            const tabBird = document.getElementById('tabBird');
+            const tabFish = document.getElementById('tabFish');
+
+            tabBug.className = `tab-btn p-3 sm:p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left transition ${type === 'bug' ? 'active-bug border-emerald-500' : 'border-slate-800 bg-slate-900 text-slate-400'}`;
+            tabBird.className = `tab-btn p-3 sm:p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left transition ${type === 'bird' ? 'active-bird border-sky-500' : 'border-slate-800 bg-slate-900 text-slate-400'}`;
+            tabFish.className = `tab-btn p-3 sm:p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-center gap-2 text-center sm:text-left transition ${type === 'fish' ? 'active-fish border-purple-500' : 'border-slate-800 bg-slate-900 text-slate-400'}`;
+
+            const sc = SCENARIOS[currentScenarioIndex];
+            const pData = sc.perspectives[type];
+
+            const colorMap = {
+                bug: { border: 'border-emerald-500/40', bg: 'bg-emerald-950/20', text: 'text-emerald-400', badge: 'bg-emerald-950 border-emerald-500/40 text-emerald-300' },
+                bird: { border: 'border-sky-500/40', bg: 'bg-sky-950/20', text: 'text-sky-400', badge: 'bg-sky-950 border-sky-500/40 text-sky-300' },
+                fish: { border: 'border-purple-500/40', bg: 'bg-purple-950/20', text: 'text-purple-400', badge: 'bg-purple-950 border-purple-500/40 text-purple-300' }
+            }[type];
+
+            const panel = document.getElementById('perspectivePanel');
+            panel.className = `glass-card rounded-2xl p-6 border ${colorMap.border} ${colorMap.bg} space-y-4 animate-fadeIn`;
+
+            panel.innerHTML = `
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg ${colorMap.bg} border ${colorMap.border} ${colorMap.text} flex items-center justify-center font-bold">
+                            <i class="fa-solid ${pData.icon}"></i>
+                        </div>
+                        <h3 class="text-sm sm:text-base font-bold text-white">${pData.title}</h3>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded-full border ${colorMap.badge} font-bold">データ検証完了</span>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80">
+                    ${pData.content}
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    ${pData.items.map(item => `
+                        <div class="p-3 rounded-xl bg-slate-900/80 border ${item.alert ? 'border-rose-500/50 bg-rose-950/20' : 'border-slate-800'} space-y-1">
+                            <div class="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
+                                ${item.alert ? '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i>' : '<i class="fa-circle-dot text-teal-400 text-[8px]"></i>'}
+                                ${item.label}
+                            </div>
+                            <div class="text-xs font-bold ${item.alert ? 'text-rose-300 font-mono' : 'text-slate-100'}">
+                                ${item.val}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // User Selects an Option
+        function selectOption(optionIndex) {
+            const sc = SCENARIOS[currentScenarioIndex];
+            const opt = sc.options[optionIndex];
+
+            // Update scores
+            userScores.total += opt.score;
+            userScores.scenariosCompleted += 1;
+            userScores.bug += Math.round(opt.impact.morale * 0.9);
+            userScores.bird += Math.round(opt.impact.risk * 0.9);
+            userScores.fish += Math.round(opt.impact.growth * 0.9);
+
+            // Switch to Review View
+            document.getElementById('simView').classList.add('hidden');
+            document.getElementById('reviewView').classList.remove('hidden');
+
+            // Render Outcome Banner
+            const outcomeBanner = document.getElementById('outcomeBanner');
+            const outcomeBadge = document.getElementById('outcomeBadge');
+            const outcomeTitle = document.getElementById('outcomeTitle');
+            const decisionScore = document.getElementById('decisionScore');
+
+            let bannerStyle = "from-emerald-950/80 to-navy-900 border-emerald-500/40";
+            let badgeStyle = "bg-emerald-900 text-emerald-300 border border-emerald-500/40";
+
+            if (opt.score < 60) {
+                bannerStyle = "from-rose-950/80 to-navy-900 border-rose-500/40";
+                badgeStyle = "bg-rose-900 text-rose-300 border border-rose-500/40";
+            } else if (opt.score < 80) {
+                bannerStyle = "from-amber-950/80 to-navy-900 border-amber-500/40";
+                badgeStyle = "bg-amber-900 text-amber-300 border border-amber-500/40";
             }
 
-            const startX = 40;
-            const startY = 40;
-            const spacingX = 36;
-            const spacingY = 22;
+            outcomeBanner.className = `glass-card rounded-2xl p-6 border bg-gradient-to-r ${bannerStyle}`;
+            outcomeBadge.className = `inline-block text-xs font-extrabold px-3 py-1 rounded-full mb-2 uppercase tracking-wide ${badgeStyle}`;
+            outcomeBadge.innerText = opt.outcome;
+            outcomeTitle.innerText = opt.outcomeDesc;
+            decisionScore.innerHTML = `${opt.score} <span class="text-sm text-slate-400">/ 100 pt</span>`;
 
-            for (let r = 0; r < INVADER_ROWS; r++) {
-                let type = 'bot', pts = 10, color = '#33ffaa';
-                if (r === 0) { type = 'top'; pts = 30; color = '#ff0055'; }
-                else if (r < 3) { type = 'mid'; pts = 20; color = '#00e5ff'; }
+            // Render KPI Progress Bars
+            renderKPIBars(opt.impact);
 
-                for (let c = 0; c < INVADER_COLS; c++) {
-                    invaders.push({
-                        x: startX + c * spacingX,
-                        y: startY + r * spacingY,
-                        width: 18,
-                        height: 14,
-                        type, points: pts, color, alive: true
-                    });
+            // Draw Radar Canvas
+            drawRadarChart(opt.impact);
+
+            // Render Debrief Text
+            document.getElementById('debriefBug').innerText = opt.debriefBug;
+            document.getElementById('debriefBird').innerText = opt.debriefBird;
+            document.getElementById('debriefFish').innerText = opt.debriefFish;
+            document.getElementById('theoryTitle').innerText = opt.theoryTitle;
+            document.getElementById('theoryBody').innerText = opt.theoryBody;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Render KPI Bar Indicators
+        function renderKPIBars(impact) {
+            const container = document.getElementById('kpiBarContainer');
+            const kpis = [
+                { name: "事業成長・収益性 (Growth & Profit)", val: impact.growth, color: "from-teal-500 to-emerald-400" },
+                { name: "顧客・市場信頼度 (Brand Reputation & Trust)", val: impact.trust, color: "from-sky-500 to-blue-400" },
+                { name: "ガバナンス・リスク防衛 (Risk Management)", val: impact.risk, color: "from-purple-500 to-indigo-400" },
+                { name: "チーム健全度・モチベーション (Team Health)", val: impact.morale, color: "from-amber-500 to-orange-400" }
+            ];
+
+            container.innerHTML = kpis.map(k => `
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-300">${k.name}</span>
+                        <span class="font-bold ${k.val >= 75 ? 'text-teal-400' : k.val >= 50 ? 'text-amber-400' : 'text-rose-400'}">${k.val}%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800 p-0.5">
+                        <div class="h-full bg-gradient-to-r ${k.color} rounded-full transition-all duration-700" style="width: ${k.val}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Draw Radar Canvas
+        function drawRadarChart(impact) {
+            const canvas = document.getElementById('radarCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = 90;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const values = [impact.growth, impact.trust, impact.risk, impact.morale];
+            const labels = ["成長性", "信頼度", "リスク防衛", "チーム健全度"];
+            const numPoints = values.length;
+
+            // Draw Background Web Circles
+            ctx.strokeStyle = "rgba(51, 65, 85, 0.6)";
+            ctx.lineWidth = 1;
+
+            [0.25, 0.5, 0.75, 1.0].forEach(rRatio => {
+                ctx.beginPath();
+                for (let i = 0; i < numPoints; i++) {
+                    const angle = (Math.PI * 2 / numPoints) * i - Math.PI / 2;
+                    const x = centerX + Math.cos(angle) * (radius * rRatio);
+                    const y = centerY + Math.sin(angle) * (radius * rRatio);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 }
-            }
-            invaderDirection = 1;
-            invaderMoveInterval = Math.max(6, 40 - (wave - 1) * 4);
-        }
+                ctx.closePath();
+                ctx.stroke();
+            });
 
-        function createBunkers() {
-            bunkers = [];
-            const bunkerCount = 4;
-            const spacing = CANVAS_WIDTH / (bunkerCount + 1);
+            // Draw Spoke Lines
+            for (let i = 0; i < numPoints; i++) {
+                const angle = (Math.PI * 2 / numPoints) * i - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
 
-            for (let i = 0; i < bunkerCount; i++) {
-                const bx = spacing * (i + 1) - 18;
-                const by = CANVAS_HEIGHT - 75;
-                const blocks = [];
-                for (let r = 0; r < 4; r++) {
-                    for (let c = 0; c < 6; c++) {
-                        if ((r === 0 && (c === 0 || c === 5)) || (r === 3 && (c === 2 || c === 3))) continue;
-                        blocks.push({ x: bx + c * 6, y: by + r * 6, width: 6, height: 6, hp: 3 });
-                    }
-                }
-                bunkers.push(blocks);
-            }
-        }
-
-        function spawnUFO() {
-            if (!ufo && Math.random() < 0.003 && !boss) {
-                const dir = Math.random() < 0.5 ? 1 : -1;
-                ufo = {
-                    x: dir === 1 ? -30 : CANVAS_WIDTH + 10,
-                    y: 20,
-                    width: 28,
-                    height: 12,
-                    speed: 2 * dir,
-                    color: '#ff0000'
-                };
-            }
-        }
-
-        function updateUFO() {
-            if (!ufo) return;
-            ufo.x += ufo.speed;
-            if (ufo.x < -40 || ufo.x > CANVAS_WIDTH + 40) ufo = null;
-        }
-
-        function drawUFO() {
-            if (!ufo) return;
-            ctx.fillStyle = ufo.color;
-            ctx.fillRect(ufo.x + 8, ufo.y, 12, 3);
-            ctx.fillRect(ufo.x + 4, ufo.y + 3, 20, 4);
-            ctx.fillRect(ufo.x, ufo.y + 7, 28, 3);
-        }
-
-        function drawBoss() {
-            if (!boss) return;
-            // Boss HP Bar
-            ctx.fillStyle = '#333';
-            ctx.fillRect(CANVAS_WIDTH / 2 - 60, 10, 120, 8);
-            ctx.fillStyle = '#ff0055';
-            ctx.fillRect(CANVAS_WIDTH / 2 - 60, 10, (120 * boss.hp) / boss.maxHp, 8);
-            ctx.strokeStyle = '#ffffff';
-            ctx.strokeRect(CANVAS_WIDTH / 2 - 60, 10, 120, 8);
-
-            // Boss Body
-            ctx.fillStyle = '#ff0055';
-            ctx.fillRect(boss.x + 10, boss.y, 40, 10);
-            ctx.fillRect(boss.x, boss.y + 10, 60, 15);
-            ctx.fillStyle = '#ffff00';
-            ctx.fillRect(boss.x + 15, boss.y + 25, 10, 10);
-            ctx.fillRect(boss.x + 35, boss.y + 25, 10, 10);
-        }
-
-        function updateBoss() {
-            if (!boss) return;
-            boss.x += boss.speed * boss.direction;
-            if (boss.x <= 15 || boss.x + boss.width >= CANVAS_WIDTH - 15) {
-                boss.direction *= -1;
+                // Labels
+                ctx.fillStyle = "#94a3b8";
+                ctx.font = "10px Inter, Noto Sans JP, sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                const labelX = centerX + Math.cos(angle) * (radius + 18);
+                const labelY = centerY + Math.sin(angle) * (radius + 18);
+                ctx.fillText(labels[i], labelX, labelY);
             }
 
-            boss.shootTimer++;
-            if (boss.shootTimer > 35) {
-                boss.shootTimer = 0;
-                // Triple bullet attack from boss
-                invaderBullets.push(
-                    { x: boss.x + 10, y: boss.y + boss.height, speed: 2.5, vx: -0.5 },
-                    { x: boss.x + boss.width / 2, y: boss.y + boss.height, speed: 3, vx: 0 },
-                    { x: boss.x + boss.width - 10, y: boss.y + boss.height, speed: 2.5, vx: 0.5 }
-                );
+            // Draw Impact Radar Shape
+            ctx.beginPath();
+            for (let i = 0; i < numPoints; i++) {
+                const angle = (Math.PI * 2 / numPoints) * i - Math.PI / 2;
+                const valRatio = values[i] / 100;
+                const x = centerX + Math.cos(angle) * (radius * valRatio);
+                const y = centerY + Math.sin(angle) * (radius * valRatio);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+
+            ctx.fillStyle = "rgba(45, 212, 191, 0.35)";
+            ctx.fill();
+            ctx.strokeStyle = "#2dd4bf";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Draw Dots
+            for (let i = 0; i < numPoints; i++) {
+                const angle = (Math.PI * 2 / numPoints) * i - Math.PI / 2;
+                const valRatio = values[i] / 100;
+                const x = centerX + Math.cos(angle) * (radius * valRatio);
+                const y = centerY + Math.sin(angle) * (radius * valRatio);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.fill();
+                ctx.strokeStyle = "#0d9488";
+                ctx.lineWidth = 2;
+                ctx.stroke();
             }
         }
 
-        function drawInvaderSprite(inv) {
-            ctx.fillStyle = inv.color;
-            const sprite = invaderSprites[inv.type];
-            for (let r = 0; r < sprite.length; r++) {
-                for (let c = 0; c < sprite[r].length; c++) {
-                    if (sprite[r][c]) {
-                        ctx.fillRect(inv.x + c * 3, inv.y + r * 2.8, 3, 2.8);
-                    }
-                }
-            }
-        }
-
-        function createParticles(x, y, color, count = 8) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 5,
-                    vy: (Math.random() - 0.5) * 5,
-                    life: 15 + Math.random() * 12,
-                    color
-                });
-            }
-        }
-
-        function updateInvaders() {
-            if (boss) return;
-
-            invaderMoveTimer++;
-            if (invaderMoveTimer < invaderMoveInterval) return;
-
-            invaderMoveTimer = 0;
-            sound.playInvaderStep(stepPitch[invaderStepIndex % stepPitch.length]);
-            invaderStepIndex++;
-
-            let shiftDown = false;
-            const aliveInvaders = invaders.filter(i => i.alive);
-
-            if (aliveInvaders.length === 0) {
-                wave++;
-                waveDisplay.textContent = wave;
-                sound.playPowerUp();
-                createFloatingText(CANVAS_WIDTH / 2 - 40, CANVAS_HEIGHT / 2, 'WAVE CLEARED!', '#00ff66');
-                createInvaders();
-                return;
-            }
-
-            for (let inv of aliveInvaders) {
-                if ((invaderDirection === 1 && inv.x + inv.width >= CANVAS_WIDTH - 15) ||
-                    (invaderDirection === -1 && inv.x <= 15)) {
-                    shiftDown = true;
-                    break;
-                }
-            }
-
-            if (shiftDown) {
-                invaderDirection *= -1;
-                aliveInvaders.forEach(inv => {
-                    inv.y += 10;
-                    if (inv.y + inv.height >= player.y - 10) triggerGameOver();
-                });
+        // Proceed to Next Scenario or Final View
+        function nextScenario() {
+            if (currentScenarioIndex + 1 < SCENARIOS.length) {
+                startScenario(currentScenarioIndex + 1);
             } else {
-                aliveInvaders.forEach(inv => inv.x += invaderDirection * 8);
-            }
-
-            if (Math.random() < 0.35 + wave * 0.04) {
-                const shooter = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
-                if (shooter) {
-                    invaderBullets.push({
-                        x: shooter.x + shooter.width / 2,
-                        y: shooter.y + shooter.height,
-                        speed: 2.5 + wave * 0.15,
-                        vx: 0
-                    });
-                }
+                showFinalReport();
             }
         }
 
-        function spawnPowerup(x, y) {
-            const p = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
-            powerups.push({ x, y, ...p, speed: 1.5 });
-        }
+        // Show Final Assessment Report
+        function showFinalReport() {
+            document.getElementById('reviewView').classList.add('hidden');
+            document.getElementById('finalView').classList.remove('hidden');
 
-        function updatePowerups() {
-            for (let i = powerups.length - 1; i >= 0; i--) {
-                const p = powerups[i];
-                p.y += p.speed;
+            const totalScore = userScores.total;
+            const avgScore = Math.round(totalScore / SCENARIOS.length);
 
-                // Collect Powerup
-                if (p.x >= player.x - 10 && p.x <= player.x + player.width + 10 &&
-                    p.y >= player.y - 5 && p.y <= player.y + player.height + 5) {
-                    
-                    sound.playPowerUp();
-                    createFloatingText(p.x, p.y, p.label, p.color);
+            let rankText = "S ランク (CXO / 経営陣クラス)";
+            let advice = "素晴らしい意思決定力です。「虫の目」による現場の現実、「鳥の目」による全社整合性、「魚の目」による市場潮流の3つが高次元で統合されています。あらゆる複雑な経営課題においてチームを勝利に導くことができる優秀なリーダーです。";
 
-                    if (p.type === 'TRIPLE') {
-                        player.weaponType = 'TRIPLE';
-                        player.weaponTimer = 350;
-                    } else if (p.type === 'FAST') {
-                        player.weaponType = 'FAST';
-                        player.weaponTimer = 350;
-                    } else if (p.type === 'SHIELD') {
-                        player.shield = true;
-                    } else if (p.type === 'BOMB') {
-                        bombs++;
-                        updateBombsUI();
-                    }
-
-                    powerups.splice(i, 1);
-                    continue;
-                }
-
-                if (p.y > CANVAS_HEIGHT) powerups.splice(i, 1);
-            }
-        }
-
-        function drawPowerups() {
-            powerups.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x - 8, p.y - 8, 16, 16);
-                ctx.fillStyle = '#000000';
-                ctx.font = '8px "Press Start 2P"';
-                ctx.fillText(p.symbol, p.x - 6, p.y + 3);
-            });
-        }
-
-        function checkCollisions() {
-            // Player bullets vs UFO
-            for (let bIndex = playerBullets.length - 1; bIndex >= 0; bIndex--) {
-                const b = playerBullets[bIndex];
-                if (ufo && b.x >= ufo.x && b.x <= ufo.x + ufo.width &&
-                    b.y >= ufo.y && b.y <= ufo.y + ufo.height) {
-                    
-                    const bonus = 150 * (combo + 1);
-                    score += bonus;
-                    createFloatingText(ufo.x, ufo.y, `+${bonus}`, '#ff0055');
-                    sound.playExplosion();
-                    createParticles(ufo.x + 14, ufo.y + 6, '#ff0055', 15);
-                    spawnPowerup(ufo.x + 14, ufo.y + 6);
-                    ufo = null;
-                    playerBullets.splice(bIndex, 1);
-                    continue;
-                }
-
-                // Player bullets vs Boss
-                if (boss && b.x >= boss.x && b.x <= boss.x + boss.width &&
-                    b.y >= boss.y && b.y <= boss.y + boss.height) {
-                    
-                    boss.hp--;
-                    playerBullets.splice(bIndex, 1);
-                    createParticles(b.x, b.y, '#ffcc00', 4);
-
-                    if (boss.hp <= 0) {
-                        score += 1000;
-                        createFloatingText(boss.x + 15, boss.y, '+1000 BOSS CLEAR!', '#ffff00');
-                        sound.playExplosion();
-                        triggerScreenShake();
-                        createParticles(boss.x + 30, boss.y + 15, '#ff0055', 40);
-                        boss = null;
-                        wave++;
-                        waveDisplay.textContent = wave;
-                        createInvaders();
-                    }
-                    continue;
-                }
-
-                // Player bullets vs Invaders
-                for (let inv of invaders) {
-                    if (inv.alive && b.x >= inv.x && b.x <= inv.x + inv.width &&
-                        b.y >= inv.y && b.y <= inv.y + inv.height) {
-
-                        inv.alive = false;
-                        playerBullets.splice(bIndex, 1);
-
-                        combo++;
-                        comboTimer = 60;
-                        const pts = inv.points * Math.min(combo, 5);
-                        score += pts;
-                        if (combo > 1) createFloatingText(inv.x, inv.y, `${combo}x COMBO!`, '#ffcc00');
-
-                        scoreDisplay.textContent = String(score).padStart(4, '0');
-                        if (score > highScore) {
-                            highScore = score;
-                            highScoreDisplay.textContent = String(highScore).padStart(4, '0');
-                            localStorage.setItem('invaders_ex_highscore', highScore);
-                        }
-
-                        if (Math.random() < 0.08) spawnPowerup(inv.x + 9, inv.y + 7);
-
-                        sound.playExplosion();
-                        createParticles(inv.x + inv.width / 2, inv.y + inv.height / 2, inv.color, 10);
-
-                        const aliveCount = invaders.filter(i => i.alive).length;
-                        invaderMoveInterval = Math.max(4, Math.floor((aliveCount / (INVADER_ROWS * INVADER_COLS)) * 35));
-                        break;
-                    }
-                }
+            if (avgScore < 60) {
+                rankText = "C ランク (現場エース / 専門家レベル)";
+                advice = "現場の細部（虫の目）または目先の数値に捉われがちです。大きな経営判断を下す際は、「鳥の目（全社財務・ガバナンスへの影響）」と「魚の目（業界の未来の波）」を常にセットで考える習慣を身につけましょう。";
+            } else if (avgScore < 80) {
+                rankText = "B ランク (プロフェッショナルリーダーレベル)";
+                advice = "現実的かつ安定した判断ができています。今後はより長期的・マクロ的な視点（魚の目）を取り入れ、一時的なトレードオフの痛みを恐れずにダイナミックな構造改革を推し進める姿勢を高めましょう。";
+            } else if (avgScore < 92) {
+                rankText = "A ランク (事業部長 / ゼネラルマネージャークラス)";
+                advice = "非常にバランスの取れた高い経営センスをお持ちです。現場の声を吸い上げつつ、全社戦略と市場トレンドに合致した判断を下せています。";
             }
 
-            // Bullets vs Bunkers
-            const checkBunker = (bulletArr) => {
-                for (let bIndex = bulletArr.length - 1; bIndex >= 0; bIndex--) {
-                    const bullet = bulletArr[bIndex];
-                    let hit = false;
-                    for (let bunker of bunkers) {
-                        for (let blockIndex = bunker.length - 1; blockIndex >= 0; blockIndex--) {
-                            const block = bunker[blockIndex];
-                            if (bullet.x >= block.x && bullet.x <= block.x + block.width &&
-                                bullet.y >= block.y && bullet.y <= block.y + block.height) {
-                                block.hp--;
-                                if (block.hp <= 0) bunker.splice(blockIndex, 1);
-                                createParticles(bullet.x, bullet.y, '#00ff66', 3);
-                                bulletArr.splice(bIndex, 1);
-                                hit = true;
-                                break;
-                            }
-                        }
-                        if (hit) break;
-                    }
-                }
-            };
+            document.getElementById('finalRank').innerText = rankText;
+            document.getElementById('finalScore').innerText = `総合獲得スコア: ${totalScore} / ${SCENARIOS.length * 100} pt (平均 ${avgScore} pt)`;
+            document.getElementById('finalAdvice').innerText = advice;
 
-            checkBunker(playerBullets);
-            checkBunker(invaderBullets);
+            const bugPct = Math.min(98, Math.max(50, Math.round((userScores.bug / (SCENARIOS.length * 90)) * 100)));
+            const birdPct = Math.min(98, Math.max(50, Math.round((userScores.bird / (SCENARIOS.length * 90)) * 100)));
+            const fishPct = Math.min(98, Math.max(50, Math.round((userScores.fish / (SCENARIOS.length * 90)) * 100)));
 
-            // Enemy Bullets vs Player
-            for (let i = invaderBullets.length - 1; i >= 0; i--) {
-                const b = invaderBullets[i];
-                if (b.x >= player.x && b.x <= player.x + player.width &&
-                    b.y >= player.y && b.y <= player.y + player.height) {
+            document.getElementById('scoreBugText').innerText = `${bugPct}%`;
+            document.getElementById('scoreBugBar').style.width = `${bugPct}%`;
+            document.getElementById('scoreBirdText').innerText = `${birdPct}%`;
+            document.getElementById('scoreBirdBar').style.width = `${birdPct}%`;
+            document.getElementById('scoreFishText').innerText = `${fishPct}%`;
+            document.getElementById('scoreFishBar').style.width = `${fishPct}%`;
 
-                    invaderBullets.splice(i, 1);
-
-                    if (player.shield) {
-                        player.shield = false;
-                        sound.playExplosion();
-                        createFloatingText(player.x, player.y, 'SHIELD BREAK!', '#00ffff');
-                        continue;
-                    }
-
-                    sound.playExplosion();
-                    triggerScreenShake();
-                    createParticles(player.x + 12, player.y + 7, '#ff0055', 25);
-
-                    lives--;
-                    updateLivesUI();
-                    if (lives <= 0) triggerGameOver();
-                    break;
-                }
-            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        function triggerBomb() {
-            if (bombs <= 0 || gameState !== 'PLAYING') return;
-            bombs--;
-            updateBombsUI();
-            sound.playBomb();
-            triggerScreenShake();
-
-            // Clear Enemy Bullets & Damage Invaders
-            invaderBullets = [];
-            invaders.forEach(inv => {
-                if (inv.alive) {
-                    inv.alive = false;
-                    score += inv.points;
-                    createParticles(inv.x + 9, inv.y + 7, '#ffcc00', 6);
-                }
-            });
-
-            if (boss) boss.hp -= 15;
-
-            scoreDisplay.textContent = String(score).padStart(4, '0');
-            createFloatingText(CANVAS_WIDTH / 2 - 30, CANVAS_HEIGHT / 2, 'MEGA BOMB!', '#ff3333');
-        }
-
-        function updateLivesUI() {
-            livesContainer.innerHTML = '';
-            for (let i = 0; i < lives; i++) livesContainer.innerHTML += '<i class="fa-solid fa-rocket"></i>';
-        }
-
-        function updateBombsUI() {
-            bombsContainer.innerHTML = '';
-            for (let i = 0; i < bombs; i++) bombsContainer.innerHTML += '<i class="fa-solid fa-bomb"></i>';
-        }
-
-        function updatePowerupHud() {
-            powerupHud.innerHTML = '';
-            if (player.shield) powerupHud.innerHTML += '<span class="bg-cyan-900/80 px-2 py-1 rounded text-cyan-300">SHIELD</span>';
-            if (player.weaponType !== 'NORMAL') {
-                const sec = Math.ceil(player.weaponTimer / 60);
-                powerupHud.innerHTML += `<span class="bg-yellow-900/80 px-2 py-1 rounded text-yellow-300">${player.weaponType} (${sec}s)</span>`;
-            }
-        }
-
-        function triggerGameOver() {
-            gameState = 'GAMEOVER';
-            overlayTitle.innerHTML = 'GAME OVER';
-            overlayTitle.className = 'text-xl sm:text-3xl text-red-500 mb-2 tracking-wider';
-            overlaySub.textContent = `FINAL SCORE: ${score}`;
-            startBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> RESTART';
-            overlay.classList.remove('hidden');
-        }
-
-        function shootBullet() {
-            if (gameState !== 'PLAYING') return;
-            sound.init();
-            if (player.cooldown <= 0) {
-                if (player.weaponType === 'TRIPLE') {
-                    playerBullets.push(
-                        { x: player.x + 12, y: player.y - 6, speed: 6.5, vx: -1 },
-                        { x: player.x + 12, y: player.y - 6, speed: 6.5, vx: 0 },
-                        { x: player.x + 12, y: player.y - 6, speed: 6.5, vx: 1 }
-                    );
-                    player.cooldown = 14;
-                } else {
-                    playerBullets.push({ x: player.x + 12, y: player.y - 6, speed: 6.5, vx: 0 });
-                    player.cooldown = player.weaponType === 'FAST' ? 7 : 16;
-                }
-                sound.playShoot();
-            }
-        }
-
-        // Keys
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
-            if (e.code === 'Space') { keys.shoot = true; shootBullet(); }
-            if (e.code === 'KeyB') triggerBomb();
-        });
-
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
-            if (e.code === 'Space') keys.shoot = false;
-        });
-
-        // Mobile Buttons
-        const bindTouch = (elem, action) => {
-            elem.addEventListener('touchstart', (e) => { e.preventDefault(); action(); });
-            elem.addEventListener('mousedown', (e) => { action(); });
-        };
-
-        bindTouch(document.getElementById('btnLeft'), () => keys.left = true);
-        document.getElementById('btnLeft').addEventListener('touchend', () => keys.left = false);
-        document.getElementById('btnLeft').addEventListener('mouseup', () => keys.left = false);
-
-        bindTouch(document.getElementById('btnRight'), () => keys.right = true);
-        document.getElementById('btnRight').addEventListener('touchend', () => keys.right = false);
-        document.getElementById('btnRight').addEventListener('mouseup', () => keys.right = false);
-
-        bindTouch(document.getElementById('btnFire'), () => shootBullet());
-        bindTouch(document.getElementById('btnBomb'), () => triggerBomb());
-
-        soundToggle.addEventListener('click', () => {
-            sound.muted = !sound.muted;
-            soundIcon.className = sound.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
-        });
-
-        function resetGame() {
-            score = 0;
-            lives = 3;
-            bombs = 1;
-            wave = 1;
-            combo = 0;
-            player.x = CANVAS_WIDTH / 2 - 12;
-            player.weaponType = 'NORMAL';
-            player.shield = false;
-
-            playerBullets = [];
-            invaderBullets = [];
-            particles = [];
-            floatingTexts = [];
-            powerups = [];
-            ufo = null;
-
-            scoreDisplay.textContent = '0000';
-            waveDisplay.textContent = '1';
-            updateLivesUI();
-            updateBombsUI();
-
-            createInvaders();
-            createBunkers();
-
-            gameState = 'PLAYING';
-            overlay.classList.add('hidden');
-        }
-
-        startBtn.addEventListener('click', () => {
-            sound.init();
-            resetGame();
-        });
-
-        // Game Loop
-        function gameLoop() {
-            ctx.fillStyle = '#050510';
-            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-            if (gameState === 'PLAYING') {
-                player.update();
-                spawnUFO();
-                updateUFO();
-                updateBoss();
-                updateInvaders();
-                updatePowerups();
-
-                if (comboTimer > 0) {
-                    comboTimer--;
-                    if (comboTimer <= 0) combo = 0;
-                }
-
-                // Update Player Bullets
-                for (let i = playerBullets.length - 1; i >= 0; i--) {
-                    playerBullets[i].y -= playerBullets[i].speed;
-                    playerBullets[i].x += playerBullets[i].vx || 0;
-                    if (playerBullets[i].y < 0) playerBullets.splice(i, 1);
-                }
-
-                // Update Invader Bullets
-                for (let i = invaderBullets.length - 1; i >= 0; i--) {
-                    invaderBullets[i].y += invaderBullets[i].speed;
-                    invaderBullets[i].x += invaderBullets[i].vx || 0;
-                    if (invaderBullets[i].y > CANVAS_HEIGHT) invaderBullets.splice(i, 1);
-                }
-
-                checkCollisions();
-                updatePowerupHud();
-            }
-
-            // Drawing
-            bunkers.forEach(b => b.forEach(blk => {
-                ctx.fillStyle = blk.hp === 3 ? '#00ff66' : blk.hp === 2 ? '#00aa44' : '#005522';
-                ctx.fillRect(blk.x, blk.y, blk.width, blk.height);
-            }));
-
-            invaders.forEach(inv => { if (inv.alive) drawInvaderSprite(inv); });
-            drawBoss();
-            drawUFO();
-            drawPowerups();
-            player.draw();
-
-            // Bullets
-            ctx.fillStyle = '#ffff00';
-            playerBullets.forEach(b => ctx.fillRect(b.x - 1, b.y, 2, 6));
-
-            ctx.fillStyle = '#ff0055';
-            invaderBullets.forEach(b => ctx.fillRect(b.x - 1, b.y, 3, 6));
-
-            // Particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.life--;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 2, 2);
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-
-            // Floating Text
-            for (let i = floatingTexts.length - 1; i >= 0; i--) {
-                const ft = floatingTexts[i];
-                ft.y += ft.vy; ft.life--;
-                ctx.fillStyle = ft.color;
-                ctx.font = '8px "Press Start 2P"';
-                ctx.fillText(ft.text, ft.x, ft.y);
-                if (ft.life <= 0) floatingTexts.splice(i, 1);
-            }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        window.onload = () => {
-            createInvaders();
-            createBunkers();
-            gameLoop();
-        };
     </script>
 </body>
 </html>
